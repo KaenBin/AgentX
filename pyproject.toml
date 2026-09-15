@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentx"
+version = "0.0.0"
+description = "Scaffold for building practical agentic AI solutions for Singapore SMEs."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "AgentX" }]
+keywords = ["agentic-ai", "llm", "orchestration", "sme", "singapore", "workflows"]
+
+# Intentionally empty on the initial scaffold. Add dependencies as concrete
+# features are designed and implemented.
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+    "black>=24.0",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+agentx = "core.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/core", "src/workflows", "src/agents", "src/tools", "src/utils"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra -q"
+markers = [
+    "integration: end-to-end tests that exercise multiple components together",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "src"
+ignore_missing_imports = true
