@@ -1,0 +1,36 @@
+{
+  "verified_at_utc": "2026-09-27T01:00:47.063982+00:00",
+  "artifact": "AgentX_Learn_Deployment.zip",
+  "sha256": "7b5e967ebd007eade976bcdbb1ef7cfdd88d9206061a50ba67da780ce2fb770d",
+  "payload_hashes": "all verified after extraction",
+  "python": "3.13.1",
+  "dependencies": {
+    "fastapi": "0.141.1",
+    "uvicorn": "0.52.4",
+    "pydantic": "2.13.5",
+    "httpx": "0.28.1",
+    "pytest": "9.1.1"
+  },
+  "tests": {
+    "python_passed": 71,
+    "python_warnings": 2,
+    "dashboard_passed": 2
+  },
+  "startup": {
+    "host": "127.0.0.1",
+    "port": 8015,
+    "health": {
+      "status": "ok",
+      "mode": "demo"
+    },
+    "fictional_learner_login": "passed",
+    "original_readiness_course": "present",
+    "initial_learning_sessions": 0
+  },
+  "limits": [
+    "Dependencies reused from existing installed runtime; clean dependency installation not tested.",
+    "Local deployment only; no public URL.",
+    "No live gateway requests made during artifact verification.",
+    "Organizer acceptance of local artifact is not confirmed."
+  ]
+}
