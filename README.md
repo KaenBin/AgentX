@@ -2,6 +2,11 @@
 
 A working local employee training app: web chat with source citations, a diagnostic, focused lessons, a separate scenario assessment, saved progress, and a trainer workspace for source approval and course publication.
 
+For the presentation, use the [demo checklist](DEMO-CHECKLIST.md): rehearse with the
+reviewed fictional course, verify the visible evidence, and keep a clearly labeled
+offline fallback. Optional OpenClaw setup and credential-safe preflight checks are
+documented in [OPENCLAW.md](OPENCLAW.md).
+
 The initial course uses a clearly fictional expense reimbursement policy. This app adapts the workflow from the sibling `agentx-training` prototype into the requested package structure and adds FastAPI, persistent chat, and the host's Ollama-compatible gateway connection.
 
 ## Start locally
@@ -133,8 +138,8 @@ establish live-model performance.
 
 Three consecutive live runs on 2026-09-26 passed all three checks after bounded
 format recovery was added. Earlier runs failed intermittently; observed failures
-included malformed structured output and timeouts. The adapter now
-limits each response to 512 tokens and repeats the JSON contract after tool results.
+included malformed structured output and timeouts. Those smoke-test calls
+request 512 output tokens and repeat the JSON contract after tool results.
 Malformed JSON gets at most one format-repair attempt. The invalid response is never
 executed, and repaired output must pass the same schema and eligibility checks.
 Chat recovery consumes one of its five turns; activity selection permits at most two
@@ -178,16 +183,25 @@ and production identity controls remain outside this milestone.
 
 ## Connect the host's gateway
 
+The existing route uses the host's Ollama-compatible gateway. To connect an
+OpenClaw agent instead, follow [OPENCLAW.md](OPENCLAW.md): enable its Chat
+Completions endpoint, configure a dedicated agent with remote tools denied, and
+set `LLM_GATEWAY_PROTOCOL=openclaw`. The three model-backed features share this
+adapter; approval, publication and scoring remain in the application backend.
+Run `python -m src.check_gateway` for a credential-safe, network-free configuration
+check before opting into live requests.
+
 Copy `.env.example` to `.env`, fill in your gateway details, and restart:
 
 ```dotenv
 AGENT_MODE=gateway
+LLM_GATEWAY_PROTOCOL=ollama
 LLM_GATEWAY_URL=https://your-host-gateway
 LLM_GATEWAY_API_KEY=your-host-provided-key
 LLM_MODEL=global.anthropic.claude-sonnet-4-5-20250929-v1:0
 ```
 
-The worker calls `POST /api/chat` with `X-API-Key`, exactly as the starter repository's Python examples do. The agent uses a bounded JSON tool-request protocol because some host gateway builds ignore native tool calling. It can retrieve sources, inspect the current learner's progress, and recommend a published lesson. It has no grading, approval, or write tools. Trainer actions and scoring are deterministic backend routes.
+With the default `ollama` protocol, the worker calls `POST /api/chat` with `X-API-Key`, exactly as the starter repository's Python examples do. The agent uses a bounded JSON tool-request protocol because some host gateway builds ignore native tool calling. It can retrieve sources, inspect the current learner's progress, and recommend a published lesson. It has no grading, approval, or write tools. Trainer actions and scoring are deterministic backend routes. Chat and activity calls request 512 output tokens with a 60-second network timeout; full course drafts request 4096 with a 180-second timeout. Timeouts do not automatically retry or silently create an offline draft.
 
 Gateway mode sends employee questions, a small amount of prior question context, and relevant approved passages to the configured model endpoint. Course generation sends the selected source. Credentials stay server-side. Missing configuration, invalid model output, provider failures, and invalid citations return explicit errors; they do not silently switch to demo mode.
 

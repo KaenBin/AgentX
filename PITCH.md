@@ -1,5 +1,9 @@
 # AgentX Learn: prove the changed step
 
+An optional three-minute script; the organizer's allotted slot has not been
+confirmed here. Use [DEMO-CHECKLIST.md](DEMO-CHECKLIST.md) for preparation and exact
+UI steps. Show the mode banner and disclose prepared learner evidence at the start.
+
 ## Opening — 25 seconds
 
 “Employees can finish a course and still miss a critical procedure. And when that
@@ -9,11 +13,15 @@ evidence of readiness.”
 
 ## Show the agent — 45 seconds
 
-“Our fictional learner missed receipt evidence. The agent reads that saved result
-and selects an eligible approved lesson. Here is the decision record: the gap,
+“Our fictional learner missed receipt evidence. In live gateway mode, the agent
+reads that saved result and selects an eligible approved lesson. Here is the decision record: the gap,
 the source section and the chosen activity. Reading the lesson does not award a
 pass. The learner must apply the rule in a different case. The backend scores that
 answer and requires every critical objective.”
+
+If the banner says **Offline simulation**, say: “This run uses deterministic
+selection to demonstrate the workflow without a model call.” Do not call the
+current selection live AI or imply that a saved decision happened on stage.
 
 ## Show the update — 65 seconds
 
@@ -37,8 +45,12 @@ retention, trainer workload and unnecessary repeated training.”
 For a three-minute slot, prepare completed original-policy evidence and a reviewed
 but unactivated revision beforehand. Disclose that these are saved rehearsal results.
 Show the earlier decision record, activate the reviewed revision, then perform the
-updated lesson and fresh case live. Do not try to answer all diagnostic and original
-assessment questions during the pitch. Keep the full journey available for Q&A.
+updated lesson and fresh case interactively. Use the fixed, reviewed fictional
+pilot and **Prepare fictional receipt policy update**; these do not require a new
+model-generated course. Do not click **Create course draft** during the timed pitch.
+Do not try to answer all diagnostic and original assessment questions during the
+pitch. Keep the full journey available for Q&A. A three-minute target is not an
+observed full-journey benchmark.
 
 ## Questions judges may ask
 
@@ -51,7 +63,14 @@ assessment questions during the pitch. Keep the full journey available for Q&A.
   and explicit trainer approval. Semantic impact analysis is future work.
 - **Did you save 75% of training time?** We carried three of four objective records
   in this fictional example. We have not measured time savings or learning outcomes.
-- **How reliable is the model?** Three consecutive gateway smoke runs passed after
-  bounded JSON recovery. That is integration evidence, not a reliability benchmark.
+- **What has actually been validated?** Current source passed 193 Python and two
+  dashboard tests. One authorized Ollama-compatible run passed three smoke checks.
+  Those results do not establish general reliability or learning effectiveness.
+- **Can it generate a course live?** The feature exists, but the latest real request
+  timed out at 60 seconds. The course timeout is now 180 seconds and covered offline;
+  the paid recheck is still unapproved. We use a reviewed fixed course in this demo.
+- **Is OpenClaw running in this demonstration?** Only say so after verifying a real
+  OpenClaw deployment. At this handoff, OpenClaw has offline integration tests only;
+  the successful real smoke checks used the Ollama-compatible gateway.
 - **What if the network fails?** Use the labeled offline replay or a separately
   labeled offline rehearsal. Never describe either as a live model call.

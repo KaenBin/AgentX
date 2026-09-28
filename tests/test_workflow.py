@@ -190,19 +190,20 @@ def test_gateway_transport_and_redacted_failure(monkeypatch):
             return b'{"message":{"content":"hello"}}'
 
     def transport(request, timeout):
+        assert timeout == 60
         assert request.full_url == "https://example.test/api/chat"
         assert request.get_header("X-api-key") == "secret-key"
         assert json.loads(request.data)["stream"] is False
         assert json.loads(request.data)["options"]["num_predict"] == 512
         return Response()
 
-    monkeypatch.setattr("urllib.request.urlopen", transport)
+    monkeypatch.setattr("src.agents.worker._open_gateway_request", transport)
     assert GatewayWorker(settings).chat([]) == "hello"
 
     def broken(*args, **kwargs):
         raise RuntimeError("secret-key")
 
-    monkeypatch.setattr("urllib.request.urlopen", broken)
+    monkeypatch.setattr("src.agents.worker._open_gateway_request", broken)
     with pytest.raises(GatewayError) as exc:
         GatewayWorker(settings).chat([])
     assert "secret-key" not in str(exc.value)

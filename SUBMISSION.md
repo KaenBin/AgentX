@@ -53,13 +53,27 @@ similar capabilities. No external competitor benchmark has been performed.
 ## Built and verified
 
 - Local FastAPI application, plain JavaScript interface and SQLite persistence.
-- Configured Ollama-compatible gateway adapter, typed read tools, bounded JSON repair.
+- Ollama-compatible gateway adapter, typed read tools and bounded JSON repair.
+- Optional OpenClaw Chat Completions adapter, with offline protocol/workflow tests;
+  real OpenClaw configuration and behavior still need verification.
 - Learner diagnostics, coaching, fresh cases and trainer review queue.
 - Trainer-approved procedure revisions and evidence carryover.
 - Trainer dashboard and isolated live/offline rehearsal creation.
-- Latest checks: 71 Python tests and 2 dashboard aggregation tests passed.
-- Three consecutive live gateway smoke checks passed after format recovery changes.
-- Browser rehearsal completed the original and revised fictional procedure.
+- Current source validation: 193 Python tests and 2 dashboard aggregation tests
+  passed on 27 September 2026. These are offline regression checks.
+- One authorized Ollama-compatible gateway run passed all three smoke checks:
+  eligible activity selection without changing scores, approved-policy citations,
+  and referral for an unsupported question.
+- The course-generation request in that run timed out at 60 seconds and returned
+  503. Course calls now allow 180 seconds, with offline tests; a further paid course
+  request has not been authorized or completed. This is not a live generation pass.
+- A previous browser rehearsal completed the original and revised fictional
+  procedure; [REHEARSAL.md](REHEARSAL.md) records that observation and its limits.
+
+The older deployment package's verification was **71 Python + 2 dashboard tests**.
+That historical result must not be replaced with the current source count without
+rebuilding and testing the packaged commit. Test counts are not a reliability or
+learning-effectiveness measure.
 
 The resumed rehearsal segment took about 2m 47s, but excluded earlier diagnostic
 work and an interruption. Do not claim the entire journey was timed under three minutes.
@@ -78,7 +92,9 @@ identity remain separate work.
 
 ## Submission assets
 
+- [Verified current deployment ZIP](output/deployment/20260928-pr-v2/AgentX_Learn_Deployment.zip) and [extracted-package verification](output/deployment/20260928-pr-v2/VERIFICATION.md)
 - [Pitch and judging questions](PITCH.md)
+- [Presentation checklist and offline fallback](DEMO-CHECKLIST.md)
 - [Demo setup and full workflow](DEMO.md)
 - [Observed rehearsal report](REHEARSAL.md)
 - [Silent illustrated backup](backup-demo.gif): reconstruction, not screen capture.
@@ -86,6 +102,12 @@ identity remain separate work.
 
 ## Organizer-specific fields still needed
 
-Hackathon name and track, judging rubric, team names, required word limits, repository
-URL, permitted demo format and submission deadline. No public URL or actual screen
-recording has been produced. This package has not been submitted or published.
+The repository is [KaenBin/AgentX](https://github.com/KaenBin/AgentX), with an existing
+`master` branch. The implementation PR URL is pending creation; inclusion in a PR
+does not imply review, merge or deployment.
+
+Confirm the team code, submission recipient, track or assigned problem statement,
+judging rubric, team/contact details, word limits, video rules, and the organizer's
+deadline and time zone. The next team's presentation date is not a verified
+submission deadline. No verified public deployment URL or actual screen-recording
+URL is supplied here. The final submission email remains a draft.
