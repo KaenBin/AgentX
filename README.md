@@ -23,12 +23,15 @@ Use `./start.ps1 -Port 8011` if the default port is occupied. On Linux:
 ```sh
 python3.13 -m venv .venv
 .venv/bin/pip install --require-hashes -r requirements.txt
-.venv/bin/python -m uvicorn src.main:app --host 127.0.0.1 --port 8010
+.venv/bin/python -m uvicorn src.main:app --host 127.0.0.1 --port 8010 --no-access-log
 ```
 
 For a container demo with persistent storage and backup/restore, follow
 [DEMO-DEPLOYMENT.md](DEMO-DEPLOYMENT.md). For the browser regression suite and
 failure artifacts, see [BROWSER-TESTING.md](BROWSER-TESTING.md).
+For readiness checks and request-ID diagnostics, see
+[DEMO-OPERATIONS.md](DEMO-OPERATIONS.md); version and review references are in
+[RELEASES.md](RELEASES.md).
 
 ## Try the complete journey
 
