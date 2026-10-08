@@ -108,6 +108,7 @@ def test_request_ids_cover_success_auth_validation_and_guard_errors(client, capf
     requests = [
         ("GET", "/health", {}, 200),
         ("GET", "/api/state", {}, 401),
+        ("GET", f"/api/learning/8675309?token={secret}", {}, 401),
         ("GET", f"/absent/{secret}?token={secret}", {}, 404),
         ("POST", "/api/login", {"json": {"password": secret}}, 422),
         ("POST", "/api/login", {"headers": {"Origin": f"https://{secret}.test"}}, 403),
@@ -126,6 +127,8 @@ def test_request_ids_cover_success_auth_validation_and_guard_errors(client, capf
     assert len(logs) == len(requests)
     assert {entry["request_id"] for entry in logs} == ids
     assert secret not in json.dumps(logs)
+    assert "8675309" not in json.dumps(logs)
+    assert any(entry["route"] == "/api/learning/{sid}" for entry in logs)
     assert set(logs[0]) == {
         "event", "timestamp", "level", "request_id", "method", "route",
         "status_code", "duration_ms", "error_kind",
@@ -240,3 +243,42 @@ def test_non_http_scope_passes_through_without_request_logging(capfd):
     assert scopes == [{"type": "lifespan"}]
     assert request_logs(capfd) == []
 
+
+def test_ready_uses_main_mode_and_database_during_valid_gateway_rehearsal(
+    client, monkeypatch
+):
+    """A healthy live rehearsal cannot mask an unavailable main deployment."""
+    monkeypatch.setenv("LLM_GATEWAY_URL", "https://example.test")
+    monkeypatch.setenv("LLM_GATEWAY_API_KEY", "fictional-key")
+    monkeypatch.setenv("LLM_MODEL", "fixture")
+    client.post("/api/login", json={"name": "trainer", "password": "LearnDemo2026!"})
+    assert client.post("/api/rehearsal/start", json={"mode": "gateway"}).status_code == 200
+    assert client.get("/health").json()["mode"] == "gateway"
+    assert client.get("/ready").json()["mode"] == "demo"
+    monkeypatch.setattr(db, "DB", db.DB.parent / "missing-main.db")
+    assert client.get("/health").json()["mode"] == "gateway"
+    assert client.get("/ready").status_code == 503
+
+
+@pytest.mark.parametrize("sink_error", [OSError, ValueError])
+def test_logging_sink_failure_preserves_learning_write_and_response(client, monkeypatch, sink_error):
+    """Unavailable/closed stderr cannot turn a persisted learning write into a failure."""
+    client.post("/api/login", json={"name": "learner", "password": "LearnDemo2026!"})
+    course = next(course for course in client.get("/api/state").json()["courses"] if "readiness" in course["content"])
+
+    class BrokenSink:
+        """Simulate a missing pipe or a closed output stream."""
+
+        def write(self, text):
+            """Fail without a secondary raw-error fallback."""
+            raise sink_error("private-sink-message")
+
+    with monkeypatch.context() as patch:
+        patch.setattr("src.utils.logging.sys.stderr", BrokenSink())
+        response = client.post("/api/learning/start", json={"course_id": course["id"]})
+        assert response.status_code == 200
+        session = response.json()
+        assert re.fullmatch(r"[0-9a-f]{32}", response.headers["X-Request-ID"])
+        saved = client.get(f"/api/learning/{session['id']}")
+        assert saved.status_code == 200
+        assert saved.json()["id"] == session["id"]

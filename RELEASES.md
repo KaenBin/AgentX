@@ -1,6 +1,6 @@
 # AgentX Learn demo releases
 
-These records describe reviewed source candidates. A record does not publish an
+These records describe versioned source candidates and their review references. A record does not publish an
 image, approve a merge, deploy a host or promote `dev` to production `master`.
 The owner chooses the approved revision and records the actual deployment using
 [DEMO-OPERATIONS.md](DEMO-OPERATIONS.md#record-an-update).
@@ -41,12 +41,14 @@ Compatibility and recovery:
 - Back up before an update. Use the prior reviewed code and its matching backup for
   rollback as described in [DEMO-DEPLOYMENT.md](DEMO-DEPLOYMENT.md#updates-and-rollback).
 
-Local validation on 9 October: 92 backend Python tests, four Chromium browser tests
+Local validation on 9 October: 95 backend Python tests, four Chromium browser tests
 and two Node dashboard tests passed; `pip check` found no dependency conflicts.
 The Python run retains an existing Starlette/httpx deprecation warning. Container
 smoke checks now cover readiness, request IDs and log redaction as well as recovery.
 The local Docker engine did not respond to its version check, so container execution
 requires the GitHub CI result before the owner treats this candidate as validated.
+The rebuilt 92-entry source bundle passed integrity, Markdown-link and configured-key
+exclusion checks; generated databases and private records remain excluded.
 
 ## 0.2.0 — prior demo foundation
 

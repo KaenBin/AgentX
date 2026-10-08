@@ -23,7 +23,7 @@ procedure and its version-two update are available. From the app directory:
 $demoDatabase = Join-Path (Get-Location) ('data/demo-' + [guid]::NewGuid().ToString() + '.db')
 $env:TRAINING_DB = $demoDatabase
 $env:AGENT_MODE = 'gateway'
-.\.venv\Scripts\python.exe -m uvicorn src.main:app --host 127.0.0.1 --port 8014
+.\.venv\Scripts\python.exe -m uvicorn src.main:app --host 127.0.0.1 --port 8014 --no-access-log
 ```
 
 This starts a separate preview and creates a new database without deleting any

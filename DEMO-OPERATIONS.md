@@ -8,7 +8,7 @@ references. This is a local fictional-data demo with shared accounts.
 
 | Endpoint | Success | Failure | What it establishes |
 | --- | --- | --- | --- |
-| `GET /health` | 200, `status: ok` | Connection/startup failure | The HTTP process responds; it does not check the database |
+| `GET /health` | 200, `status: ok` | Connection/startup failure; an invalid rehearsal cookie can return 400 | The HTTP process responds; it does not check the database |
 | `GET /ready` | 200, `status: ready`, main mode and app version | 503, `status: not_ready`, `Database unavailable` | The main SQLite database can be read and the required core tables exist |
 
 Both endpoints are unauthenticated and expose no database path, account or gateway
@@ -54,7 +54,7 @@ and unmatched routes use `<unmatched>`. Unknown HTTP methods use `OTHER`.
 
 Application request logs exclude bodies, query strings, headers, cookies, account
 names, source/chat content, database paths, exception messages and original stack
-traces. The Docker launcher, `start.ps1`, README Linux command and browser test
+traces. The Docker launcher, `start.ps1`, README/DEMO commands and browser test
 launcher disable Uvicorn's raw access log. For a custom Uvicorn command, also pass
 `--no-access-log`. This policy covers application HTTP diagnostics; startup messages,
 other tools, browser traces and screenshots require their own handling.
