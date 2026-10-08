@@ -54,6 +54,9 @@ def main():
     try:
         compose("up", "--build", "-d", "--wait", "--wait-timeout", "90")
         assert json.loads(request("/health")) == {"status": "ok", "mode": "demo"}
+        assert json.loads(request("/ready")) == {
+            "status": "ready", "mode": "demo", "version": "0.3.0"
+        }
         assert b"AgentX" in request("/")
         assert json.loads(request("/api/login", {
             "name": "learner", "password": "LearnDemo2026!"

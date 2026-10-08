@@ -6,6 +6,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 from src.core.config import ROOT, Settings
+from src.core.health import database_ready
+from src.core.version import VERSION
 from src.core.state import snapshot
 from src.tools import db_queries as db
 from src.workflows.router import act
@@ -24,7 +26,7 @@ async def lifespan(app):
     yield
 
 
-app = FastAPI(title="AgentX Learn", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="AgentX Learn", version=VERSION, lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=ROOT / "src" / "web"), name="static")
 
 
@@ -35,7 +37,7 @@ async def rehearsal_scope(request: Request, call_next):
     from src.core.config import MODE_OVERRIDE
 
     token = request.cookies.get("rehearsal")
-    if not token or request.url.path in {"/api/rehearsal/exit", "/api/rehearsal/context"}:
+    if not token or request.url.path in {"/ready", "/api/rehearsal/exit", "/api/rehearsal/context"}:
         return await call_next(request)
     try:
         path, mode = lookup(token)
@@ -128,6 +130,16 @@ def index():
 @app.get("/health")
 def health():
     return {"status": "ok", "mode": Settings().mode}
+
+
+@app.get("/ready")
+def ready():
+    """Report main-database readiness without entering a browser rehearsal."""
+    if not database_ready():
+        return JSONResponse(
+            {"status": "not_ready", "error": "Database unavailable"}, status_code=503
+        )
+    return {"status": "ready", "mode": Settings().mode, "version": VERSION}
 
 
 @app.post("/api/login")
