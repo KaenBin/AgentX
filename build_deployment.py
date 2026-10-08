@@ -13,6 +13,15 @@ for folder in ['src', 'tests', 'browser_tests', 'agents', '.github']:
             files.append(path)
 for name in ['requirements.txt','requirements-runtime.txt','requirements-runtime.in','requirements-dev.in','requirements-browser.in','requirements-browser.txt','BROWSER-TESTING.md','Dockerfile','compose.yaml','.dockerignore','container_smoke.py','restore_demo.py','DEMO-DEPLOYMENT.md','pytest.ini','start.ps1','.env.example','.gitignore','README.md','DEMO.md','PITCH.md','REHEARSAL.md','DEPLOYMENT.md']:
     files.append(root/name)
+for name in [
+    'PILOT-TEST-PLAN.md', 'PILOT-RESULTS-TEMPLATE.md', 'PILOT-ASSESSMENT-A.md',
+    'PILOT-ASSESSMENT-B.md', 'PILOT-ASSESSMENT-UPDATE.md', 'PILOT-SCORING-GUIDE.md',
+    'PILOT-FACILITATOR-RUN-SHEET.md', 'PILOT-REHEARSAL-RESULTS.md',
+    'PRODUCT-DELIVERY-PLAN.md', 'PRODUCTION-RELEASE-CHECKLIST.md',
+    'pilot_rehearsal.py', 'pilot-browser-evidence.jpg', 'pilot-session-ready.jpg',
+    'backup-demo.gif',
+]:
+    files.append(root / name)
 payload = {p.relative_to(root).as_posix(): p.read_bytes() for p in sorted(set(files))}
 assert not any(n.endswith(('.db','.log','.pyc')) or n == '.env' for n in payload)
 for line in (root/'.env').read_text(encoding='utf-8').splitlines() if (root/'.env').exists() else []:
