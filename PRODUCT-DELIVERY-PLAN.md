@@ -205,8 +205,10 @@ Maintain allowlisted read tools and bounded action selection. Enforce scope befo
 retrieval and before responding; sources are data, never instructions. Evaluate prompt
 injection, conflicting versions, withdrawn content and cross-user/organization requests.
 
-Build a versioned evaluation set with at least the pilot plan's 30 answerable and 10
-unsupported questions plus workflow, injection and access cases. Reserve evaluation
+Build a versioned evaluation set. A proposed initial target is 30 answerable and 10
+unsupported questions plus workflow, injection and access cases; the trainer must
+approve its scope before use. This corpus has not been built and is separate from the
+participant pilot forms. Reserve evaluation
 cases from training banks. Trainer reviews claim support against passages; citation
 ID validity alone is insufficient. Set approval criteria before running evaluations;
 record failures and exact configuration. A small smoke sample cannot establish an
@@ -232,11 +234,11 @@ formatting/lint gradually; introduce type checks for changed domain code first.
 Add module ownership, contribution instructions, architecture decisions and API docs.
 Secrets and private pilot databases must remain outside source and artifacts.
 
-Required CI for each pull request:
+Target CI for supported-production pull requests (several checks remain future work):
 
 1. Locked dependency installation and environment validation.
 2. Formatting/lint and scoped typing; secret and dependency scans.
-3. Existing Python tests plus dashboard tests (the current workflow omits Node tests).
+3. Existing Python and Node dashboard tests, already running in demo CI.
 4. Domain tests against PostgreSQL, including races, duplicate writes and authorization.
 5. Migration tests from supported schemas and representative legacy SQLite fixtures.
 6. Browser smoke: sign-in, learning, reload, trainer review, revision and offboarding.
