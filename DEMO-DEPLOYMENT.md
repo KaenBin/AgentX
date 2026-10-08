@@ -68,6 +68,9 @@ this setup does not provide automated off-machine backups.
 
 ## Local development and dependency updates
 
+See [BROWSER-TESTING.md](BROWSER-TESTING.md) for isolated Chromium regression
+checks, browser installation and failure diagnostics.
+
 Use Python 3.13 (the verified container and development target):
 
 ```sh
