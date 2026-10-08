@@ -21,7 +21,7 @@ Demo accounts: `learner`, `alex`, and `trainer`. Password for each: `LearnDemo20
 Use `./start.ps1 -Port 8011` if the default port is occupied. On Linux:
 
 ```sh
-python3 -m venv .venv
+python3.13 -m venv .venv
 .venv/bin/pip install --require-hashes -r requirements.txt
 .venv/bin/python -m uvicorn src.main:app --host 127.0.0.1 --port 8010
 ```
