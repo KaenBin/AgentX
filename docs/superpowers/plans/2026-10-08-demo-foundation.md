@@ -6,7 +6,7 @@ Approved scope: a fictional-data demo; customer production readiness remains a l
 2. Package the existing application in a non-root container with persistent SQLite data, a health check, and an explicit demo label.
 3. Add CI coverage for Python, dashboard JavaScript, and container startup and persistence.
 4. Document installation, backup, restore, updates, and release limitations.
-5. Verify the complete change, obtain independent review, push the feature branch, and open a PR against master. Never merge without the owner's permission.
+5. Verify the complete change, obtain independent review, push the feature branch, and open a PR against dev. Never merge without the owner's permission. Master is production; the owner controls promotion from dev to master.
 
 Work on `feat/deployable-demo-foundation`, created from `dev`. Preserve existing uncommitted pilot documents. Commit each verified milestone locally.
 
