@@ -15,6 +15,7 @@ from restore_demo import restore_backup
 
 
 def main():
+    """Check demo deployment and recovery in a disposable Compose project."""
     root = Path(__file__).resolve().parent
     project = "agentx-smoke-" + uuid.uuid4().hex[:12]
     with socket.socket() as sock:
@@ -23,6 +24,7 @@ def main():
     env = os.environ | {"DEMO_PORT": str(port)}
 
     def compose(*args, capture=False):
+        """Run Compose against this test's unique project and port."""
         result = subprocess.run(
             ["docker", "compose", "-p", project, *args],
             cwd=root, env=env, check=True, text=True,
@@ -32,6 +34,7 @@ def main():
         return result.stdout.strip() if capture else None
 
     def execute(code):
+        """Execute a runtime assertion inside the unprivileged app container."""
         return compose("exec", "-T", "app", "python", "-c", code, capture=True)
 
     opener = urllib.request.build_opener(
@@ -39,6 +42,7 @@ def main():
     )
 
     def request(path, payload=None):
+        """Send an HTTP request while preserving the smoke user's cookies."""
         data = None if payload is None else json.dumps(payload).encode()
         req = urllib.request.Request(
             f"http://127.0.0.1:{port}{path}", data=data,
@@ -79,13 +83,36 @@ def main():
                 assert "stop" in str(exc).lower()
             else:
                 raise AssertionError("Restore must refuse a running application")
+            compose("pause", "app")
+            try:
+                try:
+                    restore_backup(Path(backup), project=project)
+                except ValueError as exc:
+                    assert "stop" in str(exc).lower()
+                else:
+                    raise AssertionError("Restore must refuse a paused application")
+            finally:
+                compose("unpause", "app")
             compose("stop", "app")
             compose("run", "--rm", "-T", "--no-deps", "app", "python", "-c",
-                    "from pathlib import Path; Path('/app/data/training.db').unlink()")
+                    "from pathlib import Path; Path('/app/data/training.db').unlink(); "
+                    "Path('/app/data/stale-only.txt').write_text('preserve until operator removes')")
+            try:
+                restore_backup(Path(backup), project=project)
+            except subprocess.CalledProcessError:
+                pass
+            else:
+                raise AssertionError("Restore must refuse a non-empty data directory")
+            compose("run", "--rm", "-T", "--no-deps", "app", "python", "-c",
+                    "from pathlib import Path; "
+                    "assert not Path('/app/data/training.db').exists(); "
+                    "assert Path('/app/data/stale-only.txt').read_text() == 'preserve until operator removes'; "
+                    "Path('/app/data/stale-only.txt').unlink()")
             restore_backup(Path(backup), project=project)
             compose("up", "-d", "--wait", "--wait-timeout", "90")
             execute("import sqlite3; c=sqlite3.connect('/app/data/training.db'); "
                     f"assert c.execute('SELECT detail FROM events WHERE action=?', ('smoke',)).fetchone()[0] == {marker!r}")
+            execute("from pathlib import Path; assert not Path('/app/data/stale-only.txt').exists()")
         assert json.loads(request("/health"))["status"] == "ok"
         print("Container smoke passed: login, seeded content, non-root runtime, backup, restore, persistence.")
     except Exception:

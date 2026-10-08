@@ -2,21 +2,29 @@
 
 import argparse
 import io
+import json
 from pathlib import Path
 import subprocess
 import tarfile
 
 
 def restore_backup(directory: Path, project: str | None = None):
+    """Restore into empty demo storage only when all app containers are stopped."""
     command = ["docker", "compose"]
     if project:
         command += ["-p", project]
     root = Path(__file__).resolve().parent
-    running = subprocess.run(
-        [*command, "ps", "--status", "running", "--quiet", "app"],
+    result = subprocess.run(
+        [*command, "ps", "--all", "--format", "json", "app"],
         cwd=root, check=True, capture_output=True, text=True, timeout=30,
     )
-    if running.stdout.strip():
+    output = result.stdout.strip()
+    # Compose versions return either a JSON array or one JSON object per line.
+    containers = (json.loads(output) if output.startswith("[") else
+                  [json.loads(line) for line in output.splitlines()])
+    if any(not isinstance(container, dict) or
+           container.get("State") not in {"exited", "created"}
+           for container in containers):
         raise ValueError("Stop the app before restoring its database")
     directory = directory.resolve(strict=True)
     if not (directory / "training.db").is_file():
@@ -29,7 +37,9 @@ def restore_backup(directory: Path, project: str | None = None):
             if path.is_file():
                 bundle.add(path, arcname=path.relative_to(directory).as_posix(), recursive=False)
     command += ["run", "--rm", "-T", "--no-deps", "app", "python", "-c",
-                "import sys,tarfile; tarfile.open(fileobj=sys.stdin.buffer,mode='r|').extractall('/app/data',filter='data')"]
+                "import sys; from pathlib import Path; "
+                "from src.tools.restore_files import extract_backup; "
+                "extract_backup(sys.stdin.buffer, Path('/app/data'))"]
     subprocess.run(command, input=archive.getvalue(), check=True,
                    cwd=root, timeout=120)
 
