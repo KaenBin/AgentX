@@ -27,7 +27,8 @@ worker is intentional; this demo is not a horizontally scalable deployment.
 Before updating, stop the app and back up its data. Check out the reviewed release
 commit, then run `docker compose up --build -d --wait`. Container replacement
 preserves the named volume. Keep the prior commit and its matching backup for
-rollback: stop, restore that backup, check out the prior commit, rebuild and start.
+rollback: stop, provision an empty data volume as described below, restore that
+backup, check out the prior commit, rebuild and start.
 Do not assume a newer database can be opened safely by older application code.
 Never run `docker compose down --volumes` unless you intend to erase demo data.
 
@@ -43,7 +44,24 @@ docker compose start app
 
 Store backups outside Git with restricted access. Restore into an empty data volume
 with the app stopped, using `python restore_demo.py ./demo-backup` (Python 3.13
-on the host). This extracts files as UID 10001 so the app can write them afterward.
+on the host). The helper rejects running, paused, restarting and unknown container
+states, and refuses a non-empty target without deleting existing files. It extracts
+files as UID 10001 so the app can write them afterward.
+
+To provision empty storage for an existing demo, first verify the stopped-app
+backup above. The following commands **delete the existing demo data volume**;
+use them only when intentionally replacing it with that verified backup:
+
+```sh
+docker compose down --volumes
+docker compose create app
+python restore_demo.py ./demo-backup
+docker compose up -d --wait
+```
+
+Keep the app stopped throughout restore; do not start it or run another restore
+concurrently. Extraction is not atomic, so an interrupted restore must be retried
+with a fresh empty volume rather than started as a partially restored application.
 Then start and check `/health`, sign in, and verify a saved course or progress
 record. Test restoration before relying on a backup. Copying is a local operation;
 this setup does not provide automated off-machine backups.
