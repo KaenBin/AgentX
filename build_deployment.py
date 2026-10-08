@@ -7,11 +7,11 @@ root = Path(__file__).resolve().parent
 out = root / 'output' / 'deployment'
 out.mkdir(parents=True, exist_ok=True)
 files = []
-for folder in ['src', 'tests', 'agents', '.github']:
+for folder in ['src', 'tests', 'browser_tests', 'agents', '.github']:
     for path in (root / folder).rglob('*'):
         if path.is_file() and not any(p in {'__pycache__','.pytest_cache'} for p in path.parts) and path.suffix in {'.py','.js','.cjs','.css','.html','.md','.txt','.yml','.yaml'}:
             files.append(path)
-for name in ['requirements.txt','requirements-runtime.txt','requirements-runtime.in','requirements-dev.in','Dockerfile','compose.yaml','.dockerignore','container_smoke.py','restore_demo.py','DEMO-DEPLOYMENT.md','pytest.ini','start.ps1','.env.example','.gitignore','README.md','DEMO.md','PITCH.md','REHEARSAL.md','DEPLOYMENT.md']:
+for name in ['requirements.txt','requirements-runtime.txt','requirements-runtime.in','requirements-dev.in','requirements-browser.in','requirements-browser.txt','BROWSER-TESTING.md','Dockerfile','compose.yaml','.dockerignore','container_smoke.py','restore_demo.py','DEMO-DEPLOYMENT.md','pytest.ini','start.ps1','.env.example','.gitignore','README.md','DEMO.md','PITCH.md','REHEARSAL.md','DEPLOYMENT.md']:
     files.append(root/name)
 payload = {p.relative_to(root).as_posix(): p.read_bytes() for p in sorted(set(files))}
 assert not any(n.endswith(('.db','.log','.pyc')) or n == '.env' for n in payload)
