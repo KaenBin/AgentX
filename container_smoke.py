@@ -73,9 +73,15 @@ def main():
             compose("up", "-d", "--force-recreate", "--wait", "--wait-timeout", "90")
             execute("import sqlite3; c=sqlite3.connect('/app/data/training.db'); "
                     f"assert c.execute('SELECT detail FROM events WHERE action=?', ('smoke',)).fetchone()[0] == {marker!r}")
-            execute("import sqlite3; c=sqlite3.connect('/app/data/training.db'); "
-                    "c.execute('DELETE FROM events WHERE action=?', ('smoke',)); c.commit(); c.close()")
+            try:
+                restore_backup(Path(backup), project=project)
+            except ValueError as exc:
+                assert "stop" in str(exc).lower()
+            else:
+                raise AssertionError("Restore must refuse a running application")
             compose("stop", "app")
+            compose("run", "--rm", "-T", "--no-deps", "app", "python", "-c",
+                    "from pathlib import Path; Path('/app/data/training.db').unlink()")
             restore_backup(Path(backup), project=project)
             compose("up", "-d", "--wait", "--wait-timeout", "90")
             execute("import sqlite3; c=sqlite3.connect('/app/data/training.db'); "
