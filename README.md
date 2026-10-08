@@ -6,11 +6,11 @@ The initial course uses a clearly fictional expense reimbursement policy. This a
 
 ## Start locally
 
-Requires Python 3.12 or newer. Run from this folder:
+Use Python 3.13, the version verified in CI. Run from this folder:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install --require-hashes -r requirements.txt
 .\start.ps1
 ```
 
@@ -21,10 +21,14 @@ Demo accounts: `learner`, `alex`, and `trainer`. Password for each: `LearnDemo20
 Use `./start.ps1 -Port 8011` if the default port is occupied. On Linux:
 
 ```sh
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+python3.13 -m venv .venv
+.venv/bin/pip install --require-hashes -r requirements.txt
 .venv/bin/python -m uvicorn src.main:app --host 127.0.0.1 --port 8010
 ```
+
+For a container demo with persistent storage and backup/restore, follow
+[DEMO-DEPLOYMENT.md](DEMO-DEPLOYMENT.md). For the browser regression suite and
+failure artifacts, see [BROWSER-TESTING.md](BROWSER-TESTING.md).
 
 ## Try the complete journey
 
@@ -236,6 +240,16 @@ Sign in through `POST /api/login` with `name` and `password`; subsequent calls u
 
 ## Tests
 
+For a supervised 5–10 participant pilot, use [PILOT-TEST-PLAN.md](PILOT-TEST-PLAN.md)
+and record observations in [PILOT-RESULTS-TEMPLATE.md](PILOT-RESULTS-TEMPLATE.md).
+The plan separates app acceptance checks from independent learning assessment.
+Participant copies: [form A](PILOT-ASSESSMENT-A.md), [form B](PILOT-ASSESSMENT-B.md),
+and [procedure update](PILOT-ASSESSMENT-UPDATE.md). Keep the
+[trainer scoring guide](PILOT-SCORING-GUIDE.md) separate from participant materials.
+Use the [facilitator run sheet](PILOT-FACILITATOR-RUN-SHEET.md) for supervised sessions.
+The [offline rehearsal report](PILOT-REHEARSAL-RESULTS.md) records backend preparation
+evidence separately from participant results.
+
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 ```
@@ -243,6 +257,10 @@ Sign in through `POST /api/login` with `name` and `password`; subsequent calls u
 Tests run in demo mode with isolated databases; fake workers test live tool routing, limits, citations and errors without calling a provider. CI runs the same suite. On Windows hosts with a conflicting pytest temp-directory owner, pass `-p no:cacheprovider --basetemp=data/test-run-UNIQUE` using a new directory name. Pytest owns that test-only directory; do not point it at application data or an existing folder you want to preserve.
 
 ## Prototype boundaries
+
+For the proposed path to a supported production product, see
+[PRODUCT-DELIVERY-PLAN.md](PRODUCT-DELIVERY-PLAN.md) and the evidence-based
+[production release checklist](PRODUCTION-RELEASE-CHECKLIST.md).
 
 This is a local prototype with shared demo credentials. Before public use, replace them with managed identity, add login rate limits, organization/document access rules, HTTPS deployment, database migrations and backups. The frontend uses plain JavaScript and the database uses SQLite to keep local startup simple; React/Next.js, PostgreSQL, S3 and Bedrock Knowledge Bases from the proposal are not integrated yet.
 
