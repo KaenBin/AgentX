@@ -2,6 +2,10 @@
 
 import sqlite3
 import time
+import asyncio
+import json
+import re
+import traceback
 
 import pytest
 from fastapi.testclient import TestClient
@@ -88,4 +92,151 @@ def test_ready_ignores_rehearsal_cookie_and_database_override(client, tmp_path):
         assert client.get("/ready").status_code == 200
     finally:
         db.DATABASE_OVERRIDE.reset(scope)
+
+
+def request_logs(capfd):
+    """Read only the app's structured HTTP records from captured stderr."""
+    return [
+        json.loads(line) for line in capfd.readouterr().err.splitlines()
+        if line.startswith('{"event": "http_request"')
+    ]
+
+
+def test_request_ids_cover_success_auth_validation_and_guard_errors(client, capfd):
+    """Every response gets its own ID, including errors before route execution."""
+    secret = "private-request-material"
+    requests = [
+        ("GET", "/health", {}, 200),
+        ("GET", "/api/state", {}, 401),
+        ("GET", f"/absent/{secret}?token={secret}", {}, 404),
+        ("POST", "/api/login", {"json": {"password": secret}}, 422),
+        ("POST", "/api/login", {"headers": {"Origin": f"https://{secret}.test"}}, 403),
+        ("POST", "/api/login", {"content": secret * 20000}, 413),
+    ]
+    ids = set()
+    for method, path, options, expected in requests:
+        headers = options.pop("headers", {}) | {"X-Request-ID": secret, "Cookie": f"session={secret}"}
+        response = client.request(method, path, headers=headers, **options)
+        assert response.status_code == expected
+        request_id = response.headers.get("X-Request-ID", "")
+        assert re.fullmatch(r"[0-9a-f]{32}", request_id)
+        ids.add(request_id)
+    assert len(ids) == len(requests)
+    logs = request_logs(capfd)
+    assert len(logs) == len(requests)
+    assert {entry["request_id"] for entry in logs} == ids
+    assert secret not in json.dumps(logs)
+    assert set(logs[0]) == {
+        "event", "timestamp", "level", "request_id", "method", "route",
+        "status_code", "duration_ms", "error_kind",
+    }
+
+
+def test_unexpected_error_is_correlated_without_exception_or_request_data(
+    client, monkeypatch, capfd
+):
+    """An unhandled error returns a usable ID while private exception text stays out."""
+    secret = "private-password-and-chat-text"
+
+    def broken_user(token):
+        raise RuntimeError(secret)
+
+    monkeypatch.setattr(db, "user", broken_user)
+    with TestClient(app, raise_server_exceptions=False) as errors:
+        response = errors.get(f"/api/state?credential={secret}", headers={"Cookie": f"session={secret}"})
+    assert response.status_code == 500
+    request_id = response.headers.get("X-Request-ID", "")
+    assert re.fullmatch(r"[0-9a-f]{32}", request_id)
+    assert response.json() == {"error": "Request failed. Retry or share the request ID.", "request_id": request_id}
+    logs = request_logs(capfd)
+    assert len(logs) == 1
+    assert logs[0]["request_id"] == request_id
+    assert logs[0]["status_code"] == 500
+    assert logs[0]["route"] == "/api/state"
+    assert logs[0]["error_kind"] == "unhandled_exception"
+    assert logs[0]["level"] == "ERROR"
+    assert secret not in json.dumps(logs)
+
+
+def test_handled_gateway_failure_has_safe_metadata(client, monkeypatch, capfd):
+    """Handled upstream errors use the same request ID and an explicit category."""
+    from src.agents.worker import GatewayError
+
+    assert client.post("/api/login", json={"name": "learner", "password": "LearnDemo2026!"}).status_code == 200
+    capfd.readouterr()
+    secret = "private-question-and-provider-message"
+
+    def unavailable(*args):
+        raise GatewayError(secret)
+
+    monkeypatch.setattr("src.main.TrainingOrchestrator.run", unavailable)
+    response = client.post("/api/ask", json={"question": secret})
+    assert response.status_code == 503
+    logs = request_logs(capfd)
+    assert len(logs) == 1
+    assert logs[0]["error_kind"] == "gateway_unavailable"
+    assert logs[0]["request_id"] == response.headers["X-Request-ID"]
+    assert secret not in json.dumps(logs)
+
+
+def test_ready_failure_logs_category_without_database_path(client, tmp_path, monkeypatch, capfd):
+    """Database errors are diagnosable without exposing the configured filesystem."""
+    path = tmp_path / "private-db-name.db"
+    monkeypatch.setattr(db, "DB", path)
+    response = client.get("/ready")
+    assert response.status_code == 503
+    logs = request_logs(capfd)
+    assert len(logs) == 1
+    assert logs[0]["error_kind"] == "database_unavailable"
+    assert logs[0]["request_id"] == response.headers["X-Request-ID"]
+    assert str(path) not in json.dumps(logs)
+    assert path.name not in json.dumps(logs)
+
+
+def test_interrupted_response_reraises_only_a_safe_error(capfd):
+    """A started response cannot be replaced; its re-raised error omits private text."""
+    from src.utils.logging import RequestDiagnostics
+
+    secret = "private-stream-exception"
+    sent = []
+
+    async def broken(scope, receive, send):
+        await send({"type": "http.response.start", "status": 200, "headers": []})
+        raise RuntimeError(secret)
+
+    async def send(message):
+        sent.append(message)
+
+    async def receive():
+        return {"type": "http.request", "body": b""}
+
+    with pytest.raises(RuntimeError) as error:
+        asyncio.run(RequestDiagnostics(broken)(
+            {"type": "http", "method": "GET", "path": "/private/path", "headers": []}, receive, send
+        ))
+    assert secret not in "".join(traceback.format_exception(error.value))
+    assert len(sent) == 1
+    assert any(name == b"x-request-id" for name, value in sent[0]["headers"])
+    logs = request_logs(capfd)
+    assert len(logs) == 1
+    assert logs[0]["error_kind"] == "response_interrupted"
+    assert logs[0]["status_code"] == 200
+    assert secret not in json.dumps(logs)
+
+
+def test_non_http_scope_passes_through_without_request_logging(capfd):
+    """Lifespan and websocket protocol events keep their normal behavior."""
+    from src.utils.logging import RequestDiagnostics
+
+    scopes = []
+
+    async def downstream(scope, receive, send):
+        scopes.append(scope)
+
+    async def noop():
+        pass
+
+    asyncio.run(RequestDiagnostics(downstream)({"type": "lifespan"}, noop, noop))
+    assert scopes == [{"type": "lifespan"}]
+    assert request_logs(capfd) == []
 

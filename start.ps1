@@ -5,4 +5,4 @@ $appPython = Join-Path $PSScriptRoot '.venv/Scripts/python.exe'
 if (-not (Test-Path -LiteralPath $appPython)) {
     throw 'Create the environment first: python -m venv .venv; then install requirements.txt.'
 }
-& $appPython -m uvicorn src.main:app --host 127.0.0.1 --port $Port
+& $appPython -m uvicorn src.main:app --host 127.0.0.1 --port $Port --no-access-log

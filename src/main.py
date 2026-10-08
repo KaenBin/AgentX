@@ -17,6 +17,7 @@ from src.workflows import readiness
 from src.agents.learning_coach import advance
 from src.agents.protocol import StrictObject
 from pydantic import StrictInt
+from src.utils.logging import RequestDiagnostics
 
 
 @asynccontextmanager
@@ -95,6 +96,7 @@ async def forbidden(request, exc):
 
 @app.exception_handler(GatewayError)
 async def gateway_failure(request, exc):
+    request.state.diagnostic_error = "gateway_unavailable"
     return JSONResponse({"error": str(exc)}, status_code=503)
 
 
@@ -133,9 +135,10 @@ def health():
 
 
 @app.get("/ready")
-def ready():
+def ready(request: Request):
     """Report main-database readiness without entering a browser rehearsal."""
     if not database_ready():
+        request.state.diagnostic_error = "database_unavailable"
         return JSONResponse(
             {"status": "not_ready", "error": "Database unavailable"}, status_code=503
         )
@@ -338,3 +341,7 @@ def action(action: str, data: dict, user=Depends(authenticated)):
         return act(user, "/api/" + action, data)
     except (KeyError, TypeError) as exc:
         raise HTTPException(400, "Invalid or missing request fields") from exc
+
+
+# Register last so diagnostics also wrap early rehearsal and request-guard errors.
+app.add_middleware(RequestDiagnostics)

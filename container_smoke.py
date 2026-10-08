@@ -4,6 +4,7 @@ import http.cookiejar
 from contextlib import closing
 import json
 import os
+import re
 from pathlib import Path
 import socket
 import sqlite3
@@ -49,6 +50,7 @@ def main():
             headers={"Content-Type": "application/json"} if data else {},
         )
         with opener.open(req, timeout=10) as response:
+            assert re.fullmatch(r"[0-9a-f]{32}", response.headers.get("X-Request-ID", "")), "Response request ID missing"
             return response.read()
 
     try:
@@ -57,6 +59,11 @@ def main():
         assert json.loads(request("/ready")) == {
             "status": "ready", "mode": "demo", "version": "0.3.0"
         }
+        canary = "private-query-" + project
+        request("/health?private=" + canary)
+        logs = compose("logs", "--no-color", "app", capture=True)
+        assert '"event": "http_request"' in logs, "Structured request diagnostics missing"
+        assert canary not in logs, "Query text must not appear in container logs"
         assert b"AgentX" in request("/")
         assert json.loads(request("/api/login", {
             "name": "learner", "password": "LearnDemo2026!"
@@ -117,7 +124,7 @@ def main():
                     f"assert c.execute('SELECT detail FROM events WHERE action=?', ('smoke',)).fetchone()[0] == {marker!r}")
             execute("from pathlib import Path; assert not Path('/app/data/stale-only.txt').exists()")
         assert json.loads(request("/health"))["status"] == "ok"
-        print("Container smoke passed: login, seeded content, non-root runtime, backup, restore, persistence.")
+        print("Container smoke passed: readiness, request IDs, safe logs, login, seeded content, non-root runtime, backup, restore, persistence.")
     except Exception:
         compose("logs", "--tail", "100")
         raise
