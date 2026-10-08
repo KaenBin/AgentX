@@ -6,7 +6,7 @@ acceptance of a local artifact is not yet confirmed. No public endpoint is claim
 
 ## Reproduce from a clean folder (Windows)
 
-Requirements: Python 3.12 or newer, package-install network access, and optional
+Requirements: Python 3.13, package-install network access, and optional
 Node.js for the dashboard tests. Extract the ZIP into a new folder, then run:
 
 ```powershell
@@ -39,11 +39,9 @@ fictional data and can incur gateway charges. Offline operation requires no key.
 node --test tests/dashboard.test.cjs
 ```
 
-The accompanying verification report distinguishes archive extraction tests from
-the earlier live rehearsal. Dependencies are specified as compatible ranges, not
-an exact lockfile. Installing them on a new machine can resolve newer versions.
-The package verification used the existing installed test runtime rather than a
-fresh download of dependencies.
+Dependencies are pinned with hashes in requirements.txt (development) and
+requirements-runtime.txt (runtime). See DEMO-DEPLOYMENT.md for the container
+deployment, dependency update procedure, persistent data and backup instructions.
 
 ## Integrity and scope
 

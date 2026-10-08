@@ -1,0 +1,10 @@
+**
+!Dockerfile
+!requirements-runtime.txt
+!src/
+!src/**
+!agents/
+!agents/system_prompts/
+!agents/system_prompts/**
+**/__pycache__/
+**/*.pyc
