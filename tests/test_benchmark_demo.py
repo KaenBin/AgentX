@@ -229,3 +229,54 @@ def test_sampling_error_published_during_join_rejects_the_stage(tmp_path, monkey
     with pytest.raises(benchmark_demo.BenchmarkFailure, match="Resource samples unavailable"):
         benchmark_demo.run_stage(learners=1, read_rounds=1, temp_root=tmp_path)
     assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize("failure_kind", ["sqlite", "timeout", "runtime"])
+def test_cli_records_native_stage_failures_without_disclosing_exception_data(tmp_path, monkeypatch, capsys, failure_kind):
+    """SQLite and shutdown failures must produce a failed stage and generic CLI error."""
+    import sqlite3
+    import subprocess
+    import sys
+    import benchmark_demo
+
+    output = tmp_path / "failed.json"
+    failure = {
+        "sqlite": sqlite3.OperationalError("private database path"),
+        "timeout": subprocess.TimeoutExpired("private command arguments", 10),
+        "runtime": RuntimeError("private failure context"),
+    }[failure_kind]
+    monkeypatch.setattr(sys, "argv", ["benchmark_demo.py", "--learners", "1", "--output", str(output)])
+    monkeypatch.setattr(benchmark_demo, "source_identity", lambda: "a" * 40)
+
+    def fail(**kwargs):
+        """Inject an ordinary exception at the CLI stage boundary."""
+        raise failure
+
+    monkeypatch.setattr(benchmark_demo, "run_stage", fail)
+    assert benchmark_demo.main() == 1
+    report = json.loads(output.read_text())
+    assert report["outcome"] == "failed"
+    assert report["stages"] == [{"learners": 1, "outcome": "failed", "failure_kind": type(failure).__name__}]
+    captured = capsys.readouterr()
+    assert "Benchmark failed." in captured.err
+    assert "private" not in captured.err + captured.out + output.read_text()
+
+
+@pytest.mark.parametrize("signal", [KeyboardInterrupt, SystemExit])
+def test_cli_preserves_interruption_signals(tmp_path, monkeypatch, signal):
+    """The ordinary-failure boundary must not swallow cancellation or explicit exit."""
+    import sys
+    import benchmark_demo
+
+    output = tmp_path / "interrupted.json"
+    monkeypatch.setattr(sys, "argv", ["benchmark_demo.py", "--learners", "1", "--output", str(output)])
+    monkeypatch.setattr(benchmark_demo, "source_identity", lambda: "a" * 40)
+
+    def interrupt(**kwargs):
+        """Raise a BaseException that the CLI must allow through."""
+        raise signal()
+
+    monkeypatch.setattr(benchmark_demo, "run_stage", interrupt)
+    with pytest.raises(signal):
+        benchmark_demo.main()
+    assert json.loads(output.read_text())["outcome"] == "failed"

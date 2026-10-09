@@ -384,7 +384,7 @@ def main():
                 for learners in args.learners:
                     try:
                         report["stages"].append(run_stage(learners=learners, read_rounds=args.read_rounds))
-                    except (BenchmarkFailure, OSError, ValueError, psutil.Error) as exc:
+                    except Exception as exc:
                         report["stages"].append(getattr(exc, "stage", {
                             "learners": learners, "outcome": "failed", "failure_kind": type(exc).__name__,
                         }))
@@ -393,7 +393,7 @@ def main():
             finally:
                 json.dump(report, output, indent=2)
                 output.write("\n")
-    except (BenchmarkFailure, OSError, ValueError, psutil.Error, subprocess.SubprocessError):
+    except Exception:
         print("Benchmark failed. Check committed inputs, a new output path and the local environment.", file=sys.stderr)
         return 1
     print(f"Benchmark passed: {len(report['stages'])} stages; report saved.")
