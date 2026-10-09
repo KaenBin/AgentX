@@ -213,3 +213,19 @@ def test_resources_and_shutdown_include_owned_child_processes(tmp_path):
             if process.poll() is None:
                 process.kill()
             process.wait(timeout=10)
+
+
+def test_sampling_error_published_during_join_rejects_the_stage(tmp_path, monkeypatch):
+    """A final sampler error cannot turn into apparently passing resource evidence."""
+    import benchmark_demo
+
+    def finish_with_error(sampler):
+        """Publish the fault only after the coordinator asks sampling to stop."""
+        sampler.rss.append(1)
+        sampler.stop.wait(timeout=30)
+        sampler.error = "Scripted final sampling failure"
+
+    monkeypatch.setattr(benchmark_demo.ResourceSampler, "_sample", finish_with_error)
+    with pytest.raises(benchmark_demo.BenchmarkFailure, match="Resource samples unavailable"):
+        benchmark_demo.run_stage(learners=1, read_rounds=1, temp_root=tmp_path)
+    assert list(tmp_path.iterdir()) == []

@@ -313,12 +313,15 @@ def run_stage(*, learners, read_rounds, temp_root=None):
             evidence = asyncio.run(workload(url, learners, read_rounds, course_id, answers, samples))
             elapsed = time.perf_counter() - start
             cpu_seconds = sampler.cpu_seconds() - before_cpu
-            require(sampler.error is None and bool(sampler.rss), "Resource samples unavailable")
+            sampler.stop.set()
+            sampler.thread.join(timeout=2)
+            require(not sampler.thread.is_alive() and sampler.error is None and bool(sampler.rss),
+                    "Resource samples unavailable")
         except BenchmarkFailure as exc:
             exc.stage = {"learners": learners, "outcome": "failed", "requests": samples.summary()}
             raise
         finally:
-            if sampler:
+            if sampler and sampler.thread.is_alive():
                 sampler.stop.set()
                 sampler.thread.join(timeout=2)
             stop_server(process, sampler.owned.values() if sampler else ())
