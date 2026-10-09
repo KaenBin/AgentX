@@ -91,6 +91,52 @@ def test_request_completion_preserves_focus_moved_by_the_user(page):
     expect(page.get_by_role("button", name="Sign out", exact=True)).to_be_focused()
 
 
+@pytest.mark.parametrize("destination", ["tab", "course"])
+def test_late_activity_response_preserves_the_selected_view(page, destination):
+    """Save an issued activity without undoing navigation during its request."""
+    sign_in(page)
+    original_course = page.get_by_label("Choose a course", exact=True).input_value()
+    selected_course = None
+
+    def navigate_before_delivering_response(route):
+        """Delay the real API response until the learner has navigated away."""
+        nonlocal selected_course
+        response = route.fetch()
+        if destination == "tab":
+            page.get_by_role("button", name="Progress", exact=True).click()
+        else:
+            selector = page.get_by_label("Choose a course", exact=True)
+            options = selector.locator("option").evaluate_all("items => items.map(item => item.value)")
+            selected_course = next(value for value in options if value != original_course)
+            selector.select_option(selected_course)
+        route.fulfill(response=response)
+
+    page.route("**/api/learning/*/next", navigate_before_delivering_response)
+    page.get_by_role("button", name="Start readiness practice", exact=True).focus()
+    page.keyboard.press("Enter")
+    # Wait for the callback's cache write, not just the HTTP response event.
+    page.evaluate("""() => new Promise((resolve, reject) => {
+        const deadline = performance.now() + 5000;
+        function checkSavedActivity() {
+            if (S.learning_sessions.some(session => session.activity)) resolve();
+            else if (performance.now() > deadline) reject(new Error('Activity was not cached'));
+            else requestAnimationFrame(checkSavedActivity);
+        }
+        checkSavedActivity();
+    })""")
+    expect(page.locator("#learning-answer")).to_have_count(0)
+    if destination == "tab":
+        expect(page.get_by_role("heading", name="Your course quiz attempts", exact=True)).to_be_visible()
+        expect(page.get_by_role("button", name="Progress", exact=True)).to_have_attribute("aria-current", "page")
+    else:
+        expect(page.get_by_label("Choose a course", exact=True)).to_have_value(selected_course)
+        expect(page.get_by_label("Choose a course", exact=True)).to_be_focused()
+    # The saved activity must still be available when returning to its course.
+    page.get_by_role("button", name="Learning path", exact=True).click()
+    page.get_by_label("Choose a course", exact=True).select_option(original_course)
+    expect(page.locator("#learning-answer")).to_be_visible()
+
+
 def test_failed_activity_request_keeps_the_retry_button_focused(page):
     """A failed request must announce its error and keep the retry action reachable."""
     sign_in(page)

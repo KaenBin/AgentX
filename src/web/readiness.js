@@ -41,6 +41,7 @@ function readinessView(c) {
     try { response = await api(`/api/learning/${current.id}/next`, {}); }
     catch (error) { $('selection-reason').textContent = 'Could not load the next step. Retry to resume your saved progress.'; throw error; }
     saveLearning(response.session);
+    if (tab !== 'learn' || selected !== c.id) return;
     readinessView(c);
     $('selection-reason').textContent = `${response.selection_mode === 'gateway' ? 'Agent selected' : response.selection_mode === 'demo' ? 'Offline simulation selected' : 'Resumed'}: ${response.reason}`;
     announce($('selection-reason').textContent);
