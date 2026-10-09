@@ -59,3 +59,25 @@ def test_restore_extracts_into_empty_destination(tmp_path):
     extract_backup(backup_stream(), tmp_path)
     assert (tmp_path / "training.db").read_bytes() == b"snapshot"
     assert {path.name for path in tmp_path.iterdir()} == {"training.db"}
+
+
+def test_restore_uses_same_image_override_for_state_check_and_extraction(monkeypatch, tmp_path):
+    """A pinned recovery image must govern both safety checks and extraction."""
+    (tmp_path / "training.db").write_bytes(b"snapshot")
+    override = tmp_path / "image.json"
+    override.write_text('{"services":{"app":{"image":"reviewed-image"}}}')
+    calls = []
+
+    def docker(command, **kwargs):
+        """Replace only Docker while checking the real backup archive payload."""
+        calls.append(command)
+        if "ps" in command:
+            return subprocess.CompletedProcess(command, 0, stdout='[{"State":"exited"}]')
+        with tarfile.open(fileobj=io.BytesIO(kwargs["input"])) as archive:
+            assert archive.extractfile("training.db").read() == b"snapshot"
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(subprocess, "run", docker)
+    restore_backup(tmp_path, project="restore-test", compose_files=(override,))
+    for command in calls:
+        assert command[:6] == ["docker", "compose", "-f", str(override), "-p", "restore-test"]

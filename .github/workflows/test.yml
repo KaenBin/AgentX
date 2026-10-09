@@ -46,3 +46,27 @@ jobs:
           path: output/browser/
           if-no-files-found: ignore
           retention-days: 7
+  upgrade:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Check out reviewed 0.2.0 baseline separately
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: 8c5a357043fbfa5e562b49afc693894e5f3d435b
+          path: output/upgrade-previous
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.13"
+      - run: python upgrade_smoke.py output/upgrade-previous
+      - name: Preserve successful fictional-data rehearsal record
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: demo-upgrade-rehearsal
+          path: output/upgrade/rehearsal.json
+          if-no-files-found: error
+          retention-days: 14
