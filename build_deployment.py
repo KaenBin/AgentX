@@ -21,6 +21,7 @@ for name in [
     'pilot_rehearsal.py', 'pilot-browser-evidence.jpg', 'pilot-session-ready.jpg',
     'backup-demo.gif',
     'DEMO-OPERATIONS.md', 'RELEASES.md',
+    'UPGRADE-REHEARSAL.md', 'upgrade_smoke.py',
 ]:
     files.append(root / name)
 payload = {p.relative_to(root).as_posix(): p.read_bytes() for p in sorted(set(files))}

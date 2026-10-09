@@ -36,6 +36,11 @@ backup, check out the prior commit, rebuild and start.
 Do not assume a newer database can be opened safely by older application code.
 Never run `docker compose down --volumes` unless you intend to erase demo data.
 
+The [automated upgrade rehearsal](UPGRADE-REHEARSAL.md) checks a pinned prior image,
+saved learning evidence, a new post-upgrade write, restore and matching-backup
+rollback in disposable CI volumes. Its report supplements the operator's actual
+installation record; it does not replace a backup of your own demo data.
+
 ## Consistent backup and restore
 
 Stop the app before copying SQLite, including any journal files and rehearsals:

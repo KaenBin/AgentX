@@ -32,6 +32,8 @@ failure artifacts, see [BROWSER-TESTING.md](BROWSER-TESTING.md).
 For readiness checks and request-ID diagnostics, see
 [DEMO-OPERATIONS.md](DEMO-OPERATIONS.md); version and review references are in
 [RELEASES.md](RELEASES.md).
+For the automated previous-version upgrade, recovery and rollback exercise, see
+[UPGRADE-REHEARSAL.md](UPGRADE-REHEARSAL.md).
 
 ## Try the complete journey
 

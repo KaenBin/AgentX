@@ -7,7 +7,11 @@ The owner chooses the approved revision and records the actual deployment using
 
 ## 0.3.0 — demo operability candidate, 9 October 2026
 
-Status: candidate awaiting PR review and owner merge. Human pilot results remain
+Status: source merged into `dev` by the owner in
+[PR #5](https://github.com/KaenBin/AgentX/pull/5) on 9 October 2026 at 09:29 Singapore.
+Approved integration revision:
+[`5fe0d50`](https://github.com/KaenBin/AgentX/commit/5fe0d50f434a701aec607a2b5bbbfb1444b6bd84).
+Human pilot results remain
 uncollected. This release is for local fictional data and shared demo accounts.
 
 Implementation revision: [49a004d](https://github.com/KaenBin/AgentX/commit/49a004d14e92e1dc58da2971cee175c861e756d7),
@@ -45,10 +49,26 @@ Local validation on 9 October: 95 backend Python tests, four Chromium browser te
 and two Node dashboard tests passed; `pip check` found no dependency conflicts.
 The Python run retains an existing Starlette/httpx deprecation warning. Container
 smoke checks now cover readiness, request IDs and log redaction as well as recovery.
-The local Docker engine did not respond to its version check, so container execution
-requires the GitHub CI result before the owner treats this candidate as validated.
+The local Docker engine did not respond to its version check. Container execution
+was subsequently verified by the passing PR CI, along with Windows, Linux and browser
+checks ([reviewed revision CI](https://github.com/KaenBin/AgentX/actions/runs/37869680100)).
+CodeRabbit's final review found no actionable issues; docstring coverage passed at 90%.
 The rebuilt 92-entry source bundle passed integrity, Markdown-link and configured-key
 exclusion checks; generated databases and private records remain excluded.
+
+### Upgrade rehearsal follow-up
+
+The next feature branch adds [UPGRADE-REHEARSAL.md](UPGRADE-REHEARSAL.md) and an
+`upgrade` CI job for the exact `0.2.0` baseline `8c5a357` to current demo revision.
+It checks preserved evidence, a new answer, recovery and old-backup rollback.
+Its PR and passing CI report must be reviewed separately; this entry does not
+claim an operator installation or a production promotion.
+
+Local follow-up validation on 9 October: 105 backend and four Chromium tests passed
+together, two Node tests passed, and dependency checks found no conflicts. The
+95-entry source bundle passed integrity, local Markdown-link and key-exclusion checks.
+The local Docker engine remains unresponsive; the full upgrade result comes from
+the separate `upgrade` job and its retained report, not from these local checks.
 
 ## 0.2.0 — prior demo foundation
 

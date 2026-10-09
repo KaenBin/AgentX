@@ -37,7 +37,7 @@ supported deployment. Retain deterministic scoring and human content approval.
 | Persistence | SQLite, additive startup migrations, isolated rehearsals and container backup/restore smoke checks | Managed PostgreSQL, explicit migrations, production recovery targets and historical import rehearsal |
 | Frontend | Vanilla JavaScript; automated desktop, mobile, keyboard and trainer publication journeys | Broader accessibility review, component boundaries and human usability evidence |
 | Deployment | Non-root Docker/Compose demo, persistent volume, tested container recovery and allowlisted ZIP | Hosted staging, infrastructure as code, image promotion, production release pipeline and rollback |
-| Tests | 95 backend Python, 4 Chromium browser and 2 Node dashboard tests; container smoke checks in CI | Production DB tests, load, security, production recovery and human pilot |
+| Tests | 105 backend Python, 4 Chromium browser and 2 Node dashboard tests; container and upgrade smoke jobs in CI | Production DB tests, load, security, production recovery and human pilot |
 | Operations | Main-database readiness, generated request IDs, metadata-only HTTP logs, versioned demo release record and operator guide | Hosted telemetry retention, dashboards, alerts, production support and incident drills |
 | Dependencies | Hashed runtime, developer and browser lockfiles; test tools excluded from runtime image | Scheduled update PRs and upgrade compatibility evidence |
 | Packaging | Explicit bundle allowlist | Reviewed manifests for new docs; private pilot records excluded from releases |
@@ -452,9 +452,10 @@ content/product before expanding. If recovery or authorization fails, delay prod
    automated fixture results. Replace any public assessment forms participants have seen.
 3. Fix demonstrated pilot blockers and confusing version/error states through reviewed
    feature PRs. Add regression coverage for each meaningful behavior change.
-4. Review the demo operability candidate and its CI evidence: readiness, request-ID
-   diagnosis, safe logs and release record now exist. The owner selects a reviewed
-   revision and records an actual installation, upgrade and recovery outcome.
+4. Demo operability is merged to `dev` through PR #5 with passing CI. Review the
+   [upgrade and recovery rehearsal](UPGRADE-REHEARSAL.md) and its separate CI evidence
+   for preserved learning, new writes and matching-backup rollback. The owner selects
+   a reviewed revision and records their actual installation and recovery outcome.
 5. Review accessibility and mobile behavior beyond the four automated browser cases.
    Record gaps and verify fixes with both automated checks and human observation.
 6. If an externally hosted demo is needed, compare low-cost hosting options, document
@@ -463,7 +464,8 @@ content/product before expanding. If recovery or authorization fails, delay prod
    then re-estimate the production phases and backlog. The schedule above is provisional,
    not a commitment that starts before those decisions.
 
-The container and browser CI foundation are delivered; demo operability has a tested
-source candidate. The next evidence milestone is the first human pilot, followed by
-observed fixes and a recorded demo update/recovery exercise. This plan alone authorizes
+The container, browser CI and demo operability foundation are merged. The automated
+upgrade rehearsal is the next reviewed source change; it covers fictional fixtures.
+The next human evidence milestone is the first pilot, followed by observed fixes
+and an operator installation/update record. This plan alone authorizes
 no external deployment or spending. Production gates remain in the release checklist.
