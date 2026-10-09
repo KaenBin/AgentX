@@ -24,6 +24,7 @@ for name in [
     'UPGRADE-REHEARSAL.md', 'upgrade_smoke.py',
     'ACCESSIBILITY-REVIEW.md',
     'DEMO-RELEASE-CHECKLIST.md',
+    'DEMO-HOSTING-OPTIONS.md',
 ]:
     files.append(root / name)
 payload = {p.relative_to(root).as_posix(): p.read_bytes() for p in sorted(set(files))}

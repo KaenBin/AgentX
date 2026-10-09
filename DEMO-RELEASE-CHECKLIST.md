@@ -83,11 +83,11 @@ the demo. Fix observed blockers through branches from `dev`, request review and 
 the passing CI evidence. Only the owner merges and promotes `dev` to production
 `master`. Keep the approved revision and rollback information together.
 
-If remote access becomes necessary, compare low-cost hosting options using the
-single-worker persistent-storage requirements, expected usage, access restrictions
-and backup needs. Record a dated monthly estimate excluding model usage, then obtain
-the owner's provider, budget and deployment decision. No hosting provider, paid plan
-or external deployment is selected by this checklist.
+If remote access becomes necessary, review the dated
+[hosting options and estimate](DEMO-HOSTING-OPTIONS.md), including its usage assumptions,
+access restrictions and provider-specific recovery work. Recheck prices, add the
+access/backup costs and obtain the owner's provider, budget and deployment decision.
+No hosting provider, paid plan or external deployment is selected by this checklist.
 
 When a company joins, revisit identity, data handling, content ownership and support
 requirements in [PRODUCT-DELIVERY-PLAN.md](PRODUCT-DELIVERY-PLAN.md). The separate
