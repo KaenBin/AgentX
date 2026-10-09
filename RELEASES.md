@@ -82,12 +82,19 @@ later code.
 
 ### Keyboard and mobile follow-up
 
-The next feature branch improves view/activity focus, error and learning-update
+The owner merged [PR #7](https://github.com/KaenBin/AgentX/pull/7) into `dev` as
+[`6e7222a`](https://github.com/KaenBin/AgentX/commit/6e7222ab88c1de7af7529f2bebf82f7f9ed2217b)
+on 9 October 2026 at 15:26 Singapore. It improves view/activity focus, error and learning-update
 announcements, secondary-copy and focus contrast, and navigation at 320 pixels.
 See [ACCESSIBILITY-REVIEW.md](ACCESSIBILITY-REVIEW.md) for scope and human checks
 still needed. It introduces no schema or dependency change and retains version
-0.3.0; record the approved commit separately. This source candidate needs its own
-PR review and CI before owner integration.
+0.3.0; record the approved commit separately. All five integration CI jobs passed
+in [run 37899064809](https://github.com/KaenBin/AgentX/actions/runs/37899064809).
+Local validation passed 109 backend, 15 Chromium and two dashboard cases.
+CodeRabbit confirmed the delayed-response fix and resolved its thread. UI function
+documentation was added; its full coverage recheck remained rate-limited.
+Use the [demo release handover](DEMO-RELEASE-CHECKLIST.md) for the outstanding
+actual installation, recovery and human pilot records.
 
 ## 0.2.0 — prior demo foundation
 
