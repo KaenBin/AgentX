@@ -66,6 +66,9 @@ class RequestSamples:
             return result
         except httpx.HTTPError:
             raise BenchmarkFailure(f"{operation}: transport failure") from None
+        except asyncio.CancelledError:
+            status, failed = "cancelled", False
+            raise
         finally:
             self.rows[operation].append(((time.perf_counter() - start) * 1000,
                                          status, failed))
@@ -74,30 +77,36 @@ class RequestSamples:
         """Summarize observed HTTP latency and errors, including expected denials."""
         groups = {}
         all_rows = []
+        cancelled = 0
         for operation, rows in sorted(self.rows.items()):
+            cancellations = sum(row[1] == "cancelled" for row in rows)
+            cancelled += cancellations
+            rows = [row for row in rows if row[1] != "cancelled"]
             all_rows.extend(rows)
             timings = [row[0] for row in rows]
             groups[operation] = {
-                "count": len(rows), "failed": sum(row[2] for row in rows),
+                "count": len(rows), "cancelled": cancellations, "failed": sum(row[2] for row in rows),
                 "statuses": dict(Counter(row[1] for row in rows)),
                 "p50_ms": percentile(timings, .50), "p95_ms": percentile(timings, .95),
-                "max_ms": round(max(timings), 3),
+                "max_ms": round(max(timings), 3) if timings else 0,
             }
         failed = sum(row[2] for row in all_rows)
         timings = [row[0] for row in all_rows]
-        return {"count": len(all_rows), "failed": failed,
+        return {"count": len(all_rows), "cancelled": cancelled, "failed": failed,
                 "error_rate": failed / len(all_rows) if all_rows else 0,
                 "p50_ms": percentile(timings, .50), "p95_ms": percentile(timings, .95),
                 "by_operation": groups}
 
 
 class ResourceSampler:
-    """Sample the owned server's RSS every 100 ms, including its startup."""
+    """Sample the owned server process tree, including Windows venv redirectors."""
 
     def __init__(self, pid):
         """Monitor only the explicitly single-worker Uvicorn child."""
         self.process = psutil.Process(pid)
         self.rss = []
+        self.max_processes = 0
+        self.owned = {}
         self.stop = threading.Event()
         self.error = None
         self.thread = threading.Thread(target=self._sample, daemon=True)
@@ -106,16 +115,51 @@ class ResourceSampler:
         """Capture resident memory, recording sampling failures as failed evidence."""
         while not self.stop.is_set():
             try:
-                self.rss.append(self.process.memory_info().rss)
+                processes = self.process.children(recursive=True) + [self.process]
+                self.owned.update({p.pid: p for p in processes})
+                self.max_processes = max(self.max_processes, len(processes))
+                self.rss.append(sum(p.memory_info().rss for p in processes))
             except psutil.Error:
                 self.error = "Server resource sampling failed"
                 return
             self.stop.wait(.1)
 
     def cpu_seconds(self):
-        """Return cumulative user plus system CPU seconds, excluding the load driver."""
-        times = self.process.cpu_times()
-        return times.user + times.system
+        """Sum server-tree user/system CPU seconds, excluding the load driver."""
+        total = 0
+        for process in self.process.children(recursive=True) + [self.process]:
+            times = process.cpu_times()
+            total += times.user + times.system
+        return total
+
+
+def stop_server(process, known=()):
+    """Stop only the owned child tree, even if a Windows launcher exits first."""
+    owned = {p.pid: p for p in known}
+    try:
+        parent = psutil.Process(process.pid)
+        owned.update({p.pid: p for p in parent.children(recursive=True)})
+        owned[parent.pid] = parent
+    except psutil.NoSuchProcess:
+        pass
+    process.terminate()
+    try:
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=10)
+    for child in owned.values():
+        try:
+            if child.is_running() and child.status() != psutil.STATUS_ZOMBIE:
+                child.terminate()
+        except psutil.NoSuchProcess:
+            pass
+    _, alive = psutil.wait_procs(list(owned.values()), timeout=3)
+    for child in alive:
+        if child.status() != psutil.STATUS_ZOMBIE:
+            child.kill()
+    _, alive = psutil.wait_procs(alive, timeout=3)
+    require(all(p.status() == psutil.STATUS_ZOMBIE for p in alive), "Owned server did not stop")
 
 
 def seed_clients(database, learners):
@@ -277,12 +321,7 @@ def run_stage(*, learners, read_rounds, temp_root=None):
             if sampler:
                 sampler.stop.set()
                 sampler.thread.join(timeout=2)
-            process.terminate()
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait(timeout=10)
+            stop_server(process, sampler.owned.values() if sampler else ())
         verify_saved(database, evidence)
         after_bytes = database.stat().st_size
         return {
@@ -291,6 +330,7 @@ def run_stage(*, learners, read_rounds, temp_root=None):
             "requests": samples.summary(),
             "resources": {"sampling_interval_ms": 100, "sample_count": len(sampler.rss),
                           "peak_sampled_rss_bytes": max(sampler.rss),
+                          "max_server_processes": sampler.max_processes,
                           "cpu_seconds": round(cpu_seconds, 6),
                           "average_cpu_cores": round(cpu_seconds / elapsed, 6)},
             "database": {"before_bytes": before_bytes, "after_bytes": after_bytes,

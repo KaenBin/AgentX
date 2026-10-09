@@ -149,3 +149,67 @@ def test_cli_preserves_previous_report_and_records_failed_stage(tmp_path, monkey
     original = output.read_bytes()
     assert benchmark_demo.main() == 1
     assert output.read_bytes() == original
+
+
+def test_cancelled_peer_requests_do_not_inflate_http_failure_count():
+    """Coordinator cancellation is separate from an observed transport/HTTP failure."""
+    import asyncio
+    import httpx
+    import benchmark_demo
+
+    async def exercise():
+        entered = asyncio.Event()
+
+        async def wait(request):
+            entered.set()
+            await asyncio.Event().wait()
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(wait), base_url="http://fixture.invalid") as client:
+            samples = benchmark_demo.RequestSamples()
+            task = asyncio.create_task(samples.request(client, "state", "GET", "/api/state"))
+            await entered.wait()
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+            assert samples.summary()["failed"] == 0
+            assert samples.summary()["cancelled"] == 1
+
+    asyncio.run(exercise())
+
+
+def test_resources_and_shutdown_include_owned_child_processes(tmp_path):
+    """Windows venv redirectors and other owned descendants must be measured/stopped."""
+    import subprocess
+    import sys
+    import time
+    import psutil
+    import benchmark_demo
+
+    marker = tmp_path / "ready"
+    child_code = "import time; from pathlib import Path; blob=bytearray(64*1024*1024); " + f"Path({str(marker)!r}).write_text('ready'); time.sleep(60)"
+    parent_code = f"import subprocess,sys,time; subprocess.Popen([sys.executable,'-c',{child_code!r}]); time.sleep(60)"
+    process = subprocess.Popen([sys.executable, "-c", parent_code])
+    sampler = benchmark_demo.ResourceSampler(process.pid)
+    sampler.thread.start()
+    descendants = []
+    try:
+        deadline = time.monotonic() + 10
+        while not marker.exists() and time.monotonic() < deadline:
+            time.sleep(.05)
+        assert marker.exists()
+        descendants = psutil.Process(process.pid).children(recursive=True)
+        time.sleep(.2)
+        assert max(sampler.rss) >= 64 * 1024 * 1024
+        assert sampler.max_processes >= 2
+    finally:
+        sampler.stop.set()
+        sampler.thread.join(timeout=2)
+        try:
+            benchmark_demo.stop_server(process)
+            assert all(not p.is_running() or p.status() == psutil.STATUS_ZOMBIE for p in descendants)
+        finally:
+            for child in descendants:
+                if child.is_running():
+                    child.kill()
+            if process.poll() is None:
+                process.kill()
+            process.wait(timeout=10)
