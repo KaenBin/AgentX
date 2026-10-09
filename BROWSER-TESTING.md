@@ -30,6 +30,8 @@ explicitly selected because they require downloaded browser binaries.
   the published course becoming available to a learner.
 - Keyboard focus after login, view changes, issued activities, saved answers,
   course selection and logout; request retries and focus moved during a request.
+- Late next-activity responses preserve the learner's selected tab or course,
+  while keeping the returned activity available when the learner resumes.
 - Accessible errors and learning updates, secondary-copy and input-focus contrast,
   and all navigation actions visible at 320 pixels for learners and trainers.
 - Uncaught JavaScript errors fail the test instead of being silently ignored.

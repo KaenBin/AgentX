@@ -22,6 +22,9 @@ preserves focus moved to another surviving control while the request is pending.
 Failed activity requests keep the retry action reachable. Choosing a course
 restores focus to the replacement selector in both course interfaces. Chat retains
 its existing composer-focus behavior and is outside this focus-preservation claim.
+If the learner switches tabs or courses while a next-activity request is pending,
+the returned session stays cached for resuming later; it does not replace the
+selected view or announce the old activity there.
 
 The sampled forms already had labels, and the sampled pages did not overflow the
 viewport. Wide results tables retain their own scroll container.
@@ -44,7 +47,7 @@ The initial six new cases failed before the UI changes, demonstrating the missin
 behavior. Local screenshots and computed observations are generated under
 `output/accessibility/`; they are excluded from the source bundle.
 
-Local validation on 9 October 2026: 109 backend and 13 Chromium cases passed,
+Local validation on 9 October 2026: 109 backend and 15 Chromium cases passed,
 as did both Node dashboard tests and dependency consistency checks. The Python
 suite retains the existing Starlette/httpx deprecation warning. Desktop activity
 and mobile trainer screenshots were visually inspected; sampled login, learning,
