@@ -463,15 +463,19 @@ content/product before expanding. If recovery or authorization fails, delay prod
 5. The focused [keyboard and mobile changes](ACCESSIBILITY-REVIEW.md) and their
    browser regressions are merged through PR #7 with passing CI. Complete the listed human
    assistive-technology and physical-device checks alongside the first pilot.
-6. If an externally hosted demo is needed, compare low-cost hosting options, document
-   access and recovery needs, and obtain the owner's deployment/budget approval.
+6. Review the dated [low-cost hosting comparison](DEMO-HOSTING-OPTIONS.md) if remote
+   access is needed. Recheck its assumptions and prices, estimate the access/backup
+   costs and obtain the owner's provider and budget decision before implementing
+   managed-host configuration and recovery instructions.
 7. When a company joins, confirm its content, identity, data handling and support needs;
    then re-estimate the production phases and backlog. The schedule above is provisional,
    not a commitment that starts before those decisions.
 
 The container, browser CI, demo operability and automated upgrade rehearsal are
-merged, including the keyboard and mobile fixes. The next review item is the
-demo release handover linking those checks to actual operator and pilot records.
+merged, including the keyboard and mobile fixes. The demo release handover is
+merged through [PR #8](https://github.com/KaenBin/AgentX/pull/8), linking those checks
+to the outstanding operator and pilot records. The hosting comparison prepares
+the optional remote-demo decision; no managed-host installation has been verified.
 The next human evidence milestone is the first pilot, followed by observed fixes
 and an operator installation/update record. This plan alone authorizes
 no external deployment or spending. Production gates remain in the release checklist.
