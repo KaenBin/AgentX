@@ -445,7 +445,8 @@ content/product before expanding. If recovery or authorization fails, delay prod
 
 ## 17. Next demo work
 
-1. The pilot pack and automated rehearsal evidence are merged through PR #4. Use
+1. The pilot pack and automated pilot rehearsal are merged through PR #4; the
+   automated upgrade rehearsal and its CI job are merged through PR #6. Use
    the [demo release handover](DEMO-RELEASE-CHECKLIST.md) to select a reviewed
    revision and collect the outstanding operator and human evidence. Keep completed
    participant records and generated databases private.
