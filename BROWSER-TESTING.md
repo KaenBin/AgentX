@@ -28,11 +28,17 @@ explicitly selected because they require downloaded browser binaries.
   cases and persistent readiness evidence. Reading alone cannot award readiness.
 - Trainer source review, approval, draft publication, hidden learner drafts and
   the published course becoming available to a learner.
+- Keyboard focus after login, view changes, issued activities, saved answers,
+  course selection and logout; request retries and focus moved during a request.
+- Accessible errors and learning updates, secondary-copy and input-focus contrast,
+  and all navigation actions visible at 320 pixels for learners and trainers.
 - Uncaught JavaScript errors fail the test instead of being silently ignored.
 
 This is Chromium regression coverage of the fictional demo, not a full
 accessibility audit, Safari/Firefox compatibility check or human pilot result.
 The phone case uses a narrow desktop browser viewport, not a physical device.
+See the scoped [accessibility review](ACCESSIBILITY-REVIEW.md) for findings,
+fixes and the remaining human checks.
 
 Failures save screenshots, traces and browser errors under `output/browser/`.
 CI uploads that directory on failure and retains it for seven days. To inspect a

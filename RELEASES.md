@@ -58,11 +58,15 @@ exclusion checks; generated databases and private records remain excluded.
 
 ### Upgrade rehearsal follow-up
 
-The next feature branch adds [UPGRADE-REHEARSAL.md](UPGRADE-REHEARSAL.md) and an
+The owner merged [PR #6](https://github.com/KaenBin/AgentX/pull/6) into `dev` as
+[`7cdd33c`](https://github.com/KaenBin/AgentX/commit/7cdd33cfaa0a353bed4fe891ada599b371653b61)
+on 9 October 2026 at 13:39 Singapore. It adds [UPGRADE-REHEARSAL.md](UPGRADE-REHEARSAL.md) and an
 `upgrade` CI job for the exact `0.2.0` baseline `8c5a357` to current demo revision.
 It checks preserved evidence, a new answer, recovery and old-backup rollback.
-Its PR and passing CI report must be reviewed separately; this entry does not
-claim an operator installation or a production promotion.
+The final implementation revision `54ede79` passed all five PR CI jobs in
+[run 37873578484](https://github.com/KaenBin/AgentX/actions/runs/37873578484),
+including the Docker upgrade rehearsal. This records automated fictional-data
+evidence; the owner still records their installation and production promotion.
 
 Local follow-up validation on 9 October: 109 backend tests passed after the source
 identity guard was added; four Chromium tests and two Node tests also passed, and
@@ -72,9 +76,18 @@ The local Docker engine remains unresponsive. The first real Docker rehearsal pa
 for source `bc64ee3` in [CI run 37870908669](https://github.com/KaenBin/AgentX/actions/runs/37870908669),
 including upgrade, new writes, recovery and matching-backup rollback. The safe
 `demo-upgrade-rehearsal` report was retained. Independent review then identified and
-verified a guard against uncommitted Docker inputs; the final guard revision needs
-its own passing CI result before owner merge. Use that final PR run's report when
-selecting a release, rather than attributing this earlier result to later code.
+verified a guard against uncommitted Docker inputs. Use the final PR run linked
+above when selecting a release, rather than attributing this earlier result to
+later code.
+
+### Keyboard and mobile follow-up
+
+The next feature branch improves view/activity focus, error and learning-update
+announcements, secondary-copy and focus contrast, and navigation at 320 pixels.
+See [ACCESSIBILITY-REVIEW.md](ACCESSIBILITY-REVIEW.md) for scope and human checks
+still needed. It introduces no schema or dependency change and retains version
+0.3.0; record the approved commit separately. This source candidate needs its own
+PR review and CI before owner integration.
 
 ## 0.2.0 — prior demo foundation
 
