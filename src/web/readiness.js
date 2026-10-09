@@ -31,7 +31,7 @@ function readinessView(c) {
     ${o.diagnostic_correct !== undefined && o.diagnostic_correct !== null ? `<small>Diagnostic: ${o.diagnostic_correct ? 'correct' : 'gap identified'}</small>` : ''}
     ${(o.evidence || []).map(e => `<p class="muted">${esc(e.kind)} · ${e.correct === null ? 'reviewed' : e.correct ? 'correct' : 'needs practice'}</p>`).join('')}</div>`).join('')}
   </div></aside></div>`;
-  $('course').onchange = e => {selected = Number(e.target.value); learn(); $('course').focus();};
+  $('course').onchange = e => changeCourse(e.target.value);
   if ($('continue-learning')) $('continue-learning').onclick = e => run(e.currentTarget, async () => {
     $('selection-reason').textContent = 'Checking your saved evidence and choosing an eligible activity…';
     announce($('selection-reason').textContent);

@@ -67,6 +67,12 @@ def test_learning_activity_and_saved_answer_restore_keyboard_focus(page):
     expect(page.get_by_role("button", name="Coach me through the next step", exact=True)).to_be_focused()
     expect(page.get_by_role("status", name="Workspace updates", exact=True)).to_contain_text("Correct.")
     assert page.evaluate("document.activeElement !== document.body")
+    page.get_by_label("Question or uncertain policy detail", exact=True).fill("Which receipt details should I confirm?")
+    page.get_by_role("button", name="Save review request", exact=True).focus()
+    page.keyboard.press("Enter")
+    expect(page.get_by_label("Question or uncertain policy detail", exact=True)).to_be_focused()
+    expect(page.get_by_role("status", name="Workspace updates", exact=True)).to_have_text("Review request saved for your trainer.")
+    expect(page.locator("#selection-reason")).to_have_text("Review request saved for your trainer.")
 
 
 def test_request_completion_preserves_focus_moved_by_the_user(page):
@@ -96,6 +102,7 @@ def test_failed_activity_request_keeps_the_retry_button_focused(page):
     expect(page.get_by_role("alert")).to_have_text("Temporary demo failure")
     expect(retry).to_be_enabled()
     expect(retry).to_be_focused()
+    expect(page.get_by_role("status", name="Workspace updates", exact=True)).to_be_empty()
 
 
 def test_changing_courses_keeps_the_selector_focused(page):
@@ -106,6 +113,8 @@ def test_changing_courses_keeps_the_selector_focused(page):
     choices = selector.locator("option").evaluate_all("options => options.map(o => o.value)")
     selector.focus()
     selector.select_option(next(value for value in choices if value != initial))
+    expect(selector).to_be_focused()
+    selector.select_option(initial)
     expect(selector).to_be_focused()
 
 
