@@ -8,9 +8,13 @@ import subprocess
 import tarfile
 
 
-def restore_backup(directory: Path, project: str | None = None):
+def restore_backup(
+    directory: Path, project: str | None = None, *, compose_files: tuple[Path, ...] = ()
+):
     """Restore into empty demo storage only when all app containers are stopped."""
     command = ["docker", "compose"]
+    for path in compose_files:
+        command += ["-f", str(path.resolve(strict=True))]
     if project:
         command += ["-p", project]
     root = Path(__file__).resolve().parent
