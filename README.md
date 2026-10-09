@@ -34,6 +34,8 @@ For readiness checks and request-ID diagnostics, see
 [RELEASES.md](RELEASES.md).
 For the automated previous-version upgrade, recovery and rollback exercise, see
 [UPGRADE-REHEARSAL.md](UPGRADE-REHEARSAL.md).
+Use the [demo release handover](DEMO-RELEASE-CHECKLIST.md) to select a reviewed
+revision and record the actual installation, recovery and first human pilot.
 
 ## Try the complete journey
 
