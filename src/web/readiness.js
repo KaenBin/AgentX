@@ -19,7 +19,7 @@ function readinessView(c) {
       ${label === 'ready' ? '<p>You demonstrated the required steps in this procedure version. This is training evidence, not professional certification.</p>' : ''}
       ${label === 'blocked' ? '<p>This source or course is no longer approved. Ask your trainer for current material.</p>' : ''}
       ${label === 'needs_trainer' ? '<p>The available fresh cases are exhausted. Your trainer has a saved review item. Further reassessment needs a newly approved course.</p>' : ''}
-      <p id="selection-reason" class="muted" role="status" aria-live="polite"></p>
+      <p id="selection-reason" class="muted"></p>
     </div>
     ${activity ? learningActivityHtml(activity) : ''}
     ${session ? '<div class="card"><h3>Ask your trainer</h3><form id="learning-question"><label for="review-question">Question or uncertain policy detail</label><textarea id="review-question" required maxlength="2000"></textarea><button>Save review request</button></form></div>' : ''}
@@ -31,9 +31,10 @@ function readinessView(c) {
     ${o.diagnostic_correct !== undefined && o.diagnostic_correct !== null ? `<small>Diagnostic: ${o.diagnostic_correct ? 'correct' : 'gap identified'}</small>` : ''}
     ${(o.evidence || []).map(e => `<p class="muted">${esc(e.kind)} · ${e.correct === null ? 'reviewed' : e.correct ? 'correct' : 'needs practice'}</p>`).join('')}</div>`).join('')}
   </div></aside></div>`;
-  $('course').onchange = e => {selected = Number(e.target.value); learn();};
+  $('course').onchange = e => {selected = Number(e.target.value); learn(); $('course').focus();};
   if ($('continue-learning')) $('continue-learning').onclick = e => run(e.currentTarget, async () => {
     $('selection-reason').textContent = 'Checking your saved evidence and choosing an eligible activity…';
+    announce($('selection-reason').textContent);
     const current = session || await api('/api/learning/start', {course_id:c.id});
     saveLearning(current);
     let response;
@@ -42,7 +43,8 @@ function readinessView(c) {
     saveLearning(response.session);
     readinessView(c);
     $('selection-reason').textContent = `${response.selection_mode === 'gateway' ? 'Agent selected' : response.selection_mode === 'demo' ? 'Offline simulation selected' : 'Resumed'}: ${response.reason}`;
-  });
+    announce($('selection-reason').textContent);
+  }, '#learning-answer h2, #content h2');
   if ($('learning-answer')) $('learning-answer').onsubmit = e => {
     e.preventDefault();
     run(e.submitter, async () => {
@@ -51,14 +53,17 @@ function readinessView(c) {
       saveLearning(response.session);
       readinessView(c);
       $('selection-reason').textContent = `${response.correct === null ? '' : response.correct ? 'Correct. ' : 'Review this step. '}${response.feedback}`;
-    });
+      announce($('selection-reason').textContent);
+    }, '#continue-learning, #content h2');
   };
   if ($('learning-question')) $('learning-question').onsubmit = e => {
     e.preventDefault();
     run(e.submitter, async () => {
       saveLearning(await api(`/api/learning/${session.id}/review`, {reason:$('review-question').value}));
       readinessView(c);
-    });
+      $('selection-reason').textContent = 'Review request saved for your trainer.';
+      announce($('selection-reason').textContent);
+    }, '#review-question');
   };
 }
 

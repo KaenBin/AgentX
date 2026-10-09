@@ -14,14 +14,14 @@ h2{font-size:22px;font-weight:600;letter-spacing:-.45px}
 h3{font-weight:600}.eyebrow{font-size:11px;color:#687c55;letter-spacing:1.7px}
 .card{border:1px solid #dde2d7;box-shadow:0 5px 15px #243f3010;border-radius:17px;padding:27px}
 button{background:#285646;border-radius:9px;font-size:14px;transition:background .15s}
-button:hover{background:#193e30}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #8baf62;outline-offset:3px}
-input:focus,textarea:focus,select:focus{outline:2px solid #9aae82;border-color:transparent}
+button:hover{background:#193e30}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #285646;outline-offset:3px}
+input:focus,textarea:focus,select:focus{outline:2px solid #285646;outline-offset:2px;border-color:transparent}
 .tabs{border-bottom:1px solid #d5ddce;gap:24px;margin:28px 0 30px;overflow-x:auto}
 .tabs button{border-radius:0;background:transparent;padding:13px 2px 16px;color:#69756d;border-bottom:3px solid transparent;white-space:nowrap}
 .tabs button.active{background:transparent;color:#284f3e;border-color:#486d42}
 .tag{background:#ecf1e2;color:#526743;font-size:11px;font-weight:600;letter-spacing:.25px}
 .login{max-width:580px;margin:48px auto}.login h1{font-size:52px}.login .card{margin-top:30px;max-width:460px}
-.muted,small{color:#707d72}input,textarea,select{border-color:#d9dfd1;border-radius:9px}
+.muted,small{color:#526451}input,textarea,select{border-color:#d9dfd1;border-radius:9px}
 .grid{grid-template-columns:minmax(0,1.8fr) minmax(270px,1fr);gap:26px;align-items:start}
 .grid>*,section,aside{min-width:0}.text{overflow-wrap:anywhere}
 .chat-panel{padding:0;overflow:hidden}.chat-heading{display:flex;justify-content:space-between;gap:15px;align-items:center;padding:24px 27px;border-bottom:1px solid #e5e9de}.chat-heading h2{margin:7px 0 0}
@@ -45,3 +45,6 @@ input:focus,textarea:focus,select:focus{outline:2px solid #9aae82;border-color:t
 #rehearsal-banner{max-width:1200px;margin:20px auto;padding:0 18px}#rehearsal-banner .card{background:#eff3e8;margin-bottom:0}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 main.chat-view{margin-top:25px}.chat-view>h1{font-size:30px;margin:10px 0}.chat-view>h1 br{display:none}.chat-view>h1 br:after{content:' '}.chat-view>.tabs{margin:16px 0 20px}.chat-view #messages{height:clamp(240px,calc(100dvh - 455px),460px)}
+
+@media(max-width:600px){.tabs{flex-wrap:wrap;overflow:visible;column-gap:20px;row-gap:0}}
+[tabindex="-1"]:focus-visible{outline:3px solid #285646;outline-offset:3px}
