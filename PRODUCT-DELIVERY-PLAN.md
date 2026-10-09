@@ -37,7 +37,7 @@ supported deployment. Retain deterministic scoring and human content approval.
 | Persistence | SQLite, additive startup migrations, isolated rehearsals and container backup/restore smoke checks | Managed PostgreSQL, explicit migrations, production recovery targets and historical import rehearsal |
 | Frontend | Vanilla JavaScript; automated desktop, mobile, keyboard and trainer publication journeys | Broader accessibility review, component boundaries and human usability evidence |
 | Deployment | Non-root Docker/Compose demo, persistent volume, tested container recovery and allowlisted ZIP | Hosted staging, infrastructure as code, image promotion, production release pipeline and rollback |
-| Tests | 105 backend Python, 4 Chromium browser and 2 Node dashboard tests; container and upgrade smoke jobs in CI | Production DB tests, load, security, production recovery and human pilot |
+| Tests | 109 backend Python, 4 Chromium browser and 2 Node dashboard tests; container and upgrade smoke jobs in CI | Production DB tests, load, security, production recovery and human pilot |
 | Operations | Main-database readiness, generated request IDs, metadata-only HTTP logs, versioned demo release record and operator guide | Hosted telemetry retention, dashboards, alerts, production support and incident drills |
 | Dependencies | Hashed runtime, developer and browser lockfiles; test tools excluded from runtime image | Scheduled update PRs and upgrade compatibility evidence |
 | Packaging | Explicit bundle allowlist | Reviewed manifests for new docs; private pilot records excluded from releases |

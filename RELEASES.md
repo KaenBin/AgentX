@@ -64,11 +64,17 @@ It checks preserved evidence, a new answer, recovery and old-backup rollback.
 Its PR and passing CI report must be reviewed separately; this entry does not
 claim an operator installation or a production promotion.
 
-Local follow-up validation on 9 October: 105 backend and four Chromium tests passed
-together, two Node tests passed, and dependency checks found no conflicts. The
+Local follow-up validation on 9 October: 109 backend tests passed after the source
+identity guard was added; four Chromium tests and two Node tests also passed, and
+dependency checks found no conflicts. The
 95-entry source bundle passed integrity, local Markdown-link and key-exclusion checks.
-The local Docker engine remains unresponsive; the full upgrade result comes from
-the separate `upgrade` job and its retained report, not from these local checks.
+The local Docker engine remains unresponsive. The first real Docker rehearsal passed
+for source `bc64ee3` in [CI run 37870908669](https://github.com/KaenBin/AgentX/actions/runs/37870908669),
+including upgrade, new writes, recovery and matching-backup rollback. The safe
+`demo-upgrade-rehearsal` report was retained. Independent review then identified and
+verified a guard against uncommitted Docker inputs; the final guard revision needs
+its own passing CI result before owner merge. Use that final PR run's report when
+selecting a release, rather than attributing this earlier result to later code.
 
 ## 0.2.0 — prior demo foundation
 

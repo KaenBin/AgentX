@@ -2,10 +2,12 @@
 
 from copy import deepcopy
 import sqlite3
+import subprocess
 
 import pytest
 
 from upgrade_smoke import assert_preserved, snapshot_backup
+import upgrade_smoke
 
 
 @pytest.fixture
@@ -75,3 +77,45 @@ def test_snapshot_never_creates_missing_database(tmp_path):
     with pytest.raises(sqlite3.OperationalError):
         snapshot_backup(tmp_path)
     assert not (tmp_path / "training.db").exists()
+
+
+@pytest.fixture
+def source(tmp_path):
+    """Create a committed build context, without relying on the working checkout."""
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src/app.py").write_text('print("fictional")')
+    (tmp_path / "Dockerfile").write_text("COPY src/ ./src/\n")
+    (tmp_path / ".dockerignore").write_text("**/__pycache__/\n**/*.pyc\n")
+    (tmp_path / "requirements-runtime.txt").write_text("")
+    (tmp_path / ".gitignore").write_text("*.log\n__pycache__/\n")
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(tmp_path), "add", "."], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=Fixture",
+                    "-c", "user.email=fixture@example.invalid", "commit", "-m", "fixture"],
+                   check=True, capture_output=True)
+    return tmp_path
+
+
+@pytest.mark.parametrize("name", ["src/untracked.py", "src/ignored.log"])
+def test_source_identity_rejects_uncommitted_build_inputs(source, name):
+    """An ignored or untracked file copied into an image breaks commit identity."""
+    (source / name).write_text("uncommitted build material")
+    with pytest.raises(AssertionError, match="build inputs"):
+        upgrade_smoke.assert_clean_source(source)
+
+
+def test_source_identity_allows_unrelated_files_and_docker_excluded_cache(source):
+    """Local tools and excluded Python bytecode do not contaminate a clean image."""
+    (source / "notes.txt").write_text("unrelated working file")
+    cache = source / "src/__pycache__"
+    cache.mkdir()
+    (cache / "app.pyc").write_bytes(b"ignored bytecode")
+    (source / "src/app.pyc").write_bytes(b"also excluded")
+    assert len(upgrade_smoke.assert_clean_source(source)) == 40
+
+
+def test_source_identity_rejects_changed_tracked_source(source):
+    """An existing path must also match the committed revision's contents."""
+    (source / "src/app.py").write_text("changed build material")
+    with pytest.raises(AssertionError, match="tracked changes"):
+        upgrade_smoke.assert_clean_source(source)

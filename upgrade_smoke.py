@@ -20,6 +20,26 @@ from restore_demo import restore_backup
 PREVIOUS_REVISION = "8c5a357043fbfa5e562b49afc693894e5f3d435b"
 
 
+def assert_clean_source(source):
+    """Require committed Docker inputs while allowing unrelated local files."""
+    git = ["git", "-C", str(source)]
+    dirty = subprocess.check_output(
+        [*git, "status", "--porcelain", "--untracked-files=no"], text=True,
+    ).strip()
+    assert not dirty, "Commit tracked changes before recording a revision-based rehearsal"
+    tracked = set(subprocess.check_output(
+        [*git, "ls-tree", "-r", "-z", "--name-only", "HEAD"],
+    ).decode("utf-8").split("\0"))
+    inputs = [source / name for name in ("Dockerfile", ".dockerignore", "requirements-runtime.txt")]
+    for name in ("src", "agents/system_prompts"):
+        inputs.extend(path for path in (source / name).rglob("*")
+                      if (path.is_file() or path.is_symlink())
+                      and "__pycache__" not in path.parts and path.suffix != ".pyc")
+    assert all(not path.is_symlink() and path.relative_to(source).as_posix() in tracked
+               for path in inputs), "Uncommitted or symbolic build inputs cannot identify a tested revision"
+    return subprocess.check_output([*git, "rev-parse", "HEAD"], text=True).strip()
+
+
 def snapshot_backup(directory):
     """Validate a stopped copy and capture rows plus hashes of companion files."""
     database = directory / "training.db"
@@ -163,16 +183,9 @@ def run(previous_source, report):
     root = Path(__file__).resolve().parent
     previous_source = previous_source.resolve(strict=True)
     assert previous_source != root, "Previous source must be a separate clean checkout"
-    previous_revision = subprocess.check_output(
-        ["git", "-C", str(previous_source), "rev-parse", "HEAD"], text=True,
-    ).strip()
+    previous_revision = assert_clean_source(previous_source)
     assert previous_revision == PREVIOUS_REVISION, "Previous checkout must match the pinned baseline"
-    for source in (previous_source, root):
-        dirty = subprocess.check_output(
-            ["git", "-C", str(source), "status", "--porcelain", "--untracked-files=no"], text=True,
-        ).strip()
-        assert not dirty, "Commit tracked changes before recording a revision-based rehearsal"
-    current_revision = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+    current_revision = assert_clean_source(root)
     # The current release version is read without importing FastAPI on the host.
     from src.core.version import VERSION
 

@@ -45,7 +45,9 @@ git -C ../agentx-upgrade-baseline checkout --detach 8c5a357043fbfa5e562b49afc693
 python upgrade_smoke.py ../agentx-upgrade-baseline
 ```
 
-The script refuses a different baseline or tracked modifications in either checkout.
+The script refuses a different baseline, tracked modifications, uncommitted Docker
+inputs or symbolic links in copied source. Unrelated local files are allowed, as are
+the bytecode/cache files explicitly excluded by the supported Docker context.
 It allocates localhost ports and unique `agentx-upgrade-*` projects; cleanup removes
 only those projects' disposable volumes and the two uniquely tagged images. It does
 not operate on the normal `agentx-demo` volume. If cleanup fails, inspect the named
