@@ -6,6 +6,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 from src.core.config import ROOT, Settings
+from src.core.health import database_ready
+from src.core.version import VERSION
 from src.core.state import snapshot
 from src.tools import db_queries as db
 from src.workflows.router import act
@@ -15,6 +17,7 @@ from src.workflows import readiness
 from src.agents.learning_coach import advance
 from src.agents.protocol import StrictObject
 from pydantic import StrictInt
+from src.utils.logging import RequestDiagnostics
 
 
 @asynccontextmanager
@@ -24,18 +27,19 @@ async def lifespan(app):
     yield
 
 
-app = FastAPI(title="AgentX Learn", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="AgentX Learn", version=VERSION, lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=ROOT / "src" / "web"), name="static")
 
 
 @app.middleware("http")
 async def rehearsal_scope(request: Request, call_next):
+    """Scope browser requests to rehearsal data, leaving deployment probes on main."""
     import sqlite3
     from src.workflows.rehearsal import lookup
     from src.core.config import MODE_OVERRIDE
 
     token = request.cookies.get("rehearsal")
-    if not token or request.url.path in {"/api/rehearsal/exit", "/api/rehearsal/context"}:
+    if not token or request.url.path in {"/ready", "/api/rehearsal/exit", "/api/rehearsal/context"}:
         return await call_next(request)
     try:
         path, mode = lookup(token)
@@ -93,6 +97,8 @@ async def forbidden(request, exc):
 
 @app.exception_handler(GatewayError)
 async def gateway_failure(request, exc):
+    """Return the adapter's gateway error and classify it for request diagnostics."""
+    request.state.diagnostic_error = "gateway_unavailable"
     return JSONResponse({"error": str(exc)}, status_code=503)
 
 
@@ -128,6 +134,17 @@ def index():
 @app.get("/health")
 def health():
     return {"status": "ok", "mode": Settings().mode}
+
+
+@app.get("/ready")
+def ready(request: Request):
+    """Report main-database readiness without entering a browser rehearsal."""
+    if not database_ready():
+        request.state.diagnostic_error = "database_unavailable"
+        return JSONResponse(
+            {"status": "not_ready", "error": "Database unavailable"}, status_code=503
+        )
+    return {"status": "ready", "mode": Settings().mode, "version": VERSION}
 
 
 @app.post("/api/login")
@@ -326,3 +343,7 @@ def action(action: str, data: dict, user=Depends(authenticated)):
         return act(user, "/api/" + action, data)
     except (KeyError, TypeError) as exc:
         raise HTTPException(400, "Invalid or missing request fields") from exc
+
+
+# Register last so diagnostics also wrap early rehearsal and request-guard errors.
+app.add_middleware(RequestDiagnostics)

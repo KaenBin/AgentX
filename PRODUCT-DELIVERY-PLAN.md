@@ -1,6 +1,6 @@
 # AgentX Learn — product and production delivery plan
 
-Planning baseline: 8 October 2026, Singapore. Status: demo delivery in progress;
+Planning baseline: 8 October 2026; updated 9 October, Singapore. Status: demo delivery in progress;
 production controls below are future requirements, not current capabilities.
 
 The agreed release is a fictional-data demo. No company has joined yet. Company
@@ -37,8 +37,8 @@ supported deployment. Retain deterministic scoring and human content approval.
 | Persistence | SQLite, additive startup migrations, isolated rehearsals and container backup/restore smoke checks | Managed PostgreSQL, explicit migrations, production recovery targets and historical import rehearsal |
 | Frontend | Vanilla JavaScript; automated desktop, mobile, keyboard and trainer publication journeys | Broader accessibility review, component boundaries and human usability evidence |
 | Deployment | Non-root Docker/Compose demo, persistent volume, tested container recovery and allowlisted ZIP | Hosted staging, infrastructure as code, image promotion, production release pipeline and rollback |
-| Tests | 78 backend Python, 4 Chromium browser and 2 Node dashboard tests; container smoke checks in CI | Production DB tests, load, security, production recovery and human pilot |
-| Operations | Local logs and basic /health endpoint | Readiness probes, redacted telemetry, alerts, support and incident runbooks |
+| Tests | 95 backend Python, 4 Chromium browser and 2 Node dashboard tests; container smoke checks in CI | Production DB tests, load, security, production recovery and human pilot |
+| Operations | Main-database readiness, generated request IDs, metadata-only HTTP logs, versioned demo release record and operator guide | Hosted telemetry retention, dashboards, alerts, production support and incident drills |
 | Dependencies | Hashed runtime, developer and browser lockfiles; test tools excluded from runtime image | Scheduled update PRs and upgrade compatibility evidence |
 | Packaging | Explicit bundle allowlist | Reviewed manifests for new docs; private pilot records excluded from releases |
 
@@ -52,6 +52,8 @@ The demo foundation landed in [PR #2](https://github.com/KaenBin/AgentX/pull/2)
 and browser regression coverage in [PR #3](https://github.com/KaenBin/AgentX/pull/3).
 See [DEMO-DEPLOYMENT.md](DEMO-DEPLOYMENT.md) for the supported local container
 workflow and [BROWSER-TESTING.md](BROWSER-TESTING.md) for browser CI scope.
+Demo operability is described in [DEMO-OPERATIONS.md](DEMO-OPERATIONS.md) and
+[RELEASES.md](RELEASES.md), with validation limitations recorded per candidate.
 Automated checks and fixture rehearsals do not replace human pilot results.
 
 ## 3. Users, outcomes and success measures
@@ -450,8 +452,9 @@ content/product before expanding. If recovery or authorization fails, delay prod
    automated fixture results. Replace any public assessment forms participants have seen.
 3. Fix demonstrated pilot blockers and confusing version/error states through reviewed
    feature PRs. Add regression coverage for each meaningful behavior change.
-4. Add demo operational checks and a short release record: supported configuration,
-   health/failure diagnosis, backup/restore, upgrade steps and known limitations.
+4. Review the demo operability candidate and its CI evidence: readiness, request-ID
+   diagnosis, safe logs and release record now exist. The owner selects a reviewed
+   revision and records an actual installation, upgrade and recovery outcome.
 5. Review accessibility and mobile behavior beyond the four automated browser cases.
    Record gaps and verify fixes with both automated checks and human observation.
 6. If an externally hosted demo is needed, compare low-cost hosting options, document
@@ -460,6 +463,7 @@ content/product before expanding. If recovery or authorization fails, delay prod
    then re-estimate the production phases and backlog. The schedule above is provisional,
    not a commitment that starts before those decisions.
 
-The container and browser CI foundation are delivered. The next evidence milestone is
-the first human pilot, followed by fixes and demo operability. This plan alone authorizes
+The container and browser CI foundation are delivered; demo operability has a tested
+source candidate. The next evidence milestone is the first human pilot, followed by
+observed fixes and a recorded demo update/recovery exercise. This plan alone authorizes
 no external deployment or spending. Production gates remain in the release checklist.

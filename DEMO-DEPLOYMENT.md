@@ -4,6 +4,10 @@ This release is a local demo with shared seeded accounts. Use fictional content 
 Customer authentication, access provisioning, PostgreSQL migrations, public HTTPS,
 monitoring and company onboarding belong to the later production milestone.
 
+For database readiness, request IDs, safe logs and update records, see
+[DEMO-OPERATIONS.md](DEMO-OPERATIONS.md). Application release references are in
+[RELEASES.md](RELEASES.md).
+
 ## Container installation
 
 Install Docker with Compose, then run from this folder:
@@ -62,7 +66,7 @@ docker compose up -d --wait
 Keep the app stopped throughout restore; do not start it or run another restore
 concurrently. Extraction is not atomic, so an interrupted restore must be retried
 with a fresh empty volume rather than started as a partially restored application.
-Then start and check `/health`, sign in, and verify a saved course or progress
+Then start and check `/ready`, sign in, and verify a saved course or progress
 record. Test restoration before relying on a backup. Copying is a local operation;
 this setup does not provide automated off-machine backups.
 

@@ -39,7 +39,7 @@ def demo_url(tmp_path):
     with log_path.open("w", encoding="utf-8") as log:
         process = subprocess.Popen(
             [sys.executable, "-m", "uvicorn", "src.main:app", "--host", "127.0.0.1",
-             "--port", str(port)], cwd=ROOT, env=env, stdout=log, stderr=log,
+             "--port", str(port), "--no-access-log"], cwd=ROOT, env=env, stdout=log, stderr=log,
         )
         try:
             deadline = time.monotonic() + 30
