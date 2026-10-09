@@ -445,8 +445,11 @@ content/product before expanding. If recovery or authorization fails, delay prod
 
 ## 17. Next demo work
 
-1. Publish the pilot pack, rehearsal evidence and current delivery plan through a PR to
-   `dev`. Keep completed participant records and generated databases private.
+1. The pilot pack and automated pilot rehearsal are merged through PR #4; the
+   automated upgrade rehearsal and its CI job are merged through PR #6. Use
+   the [demo release handover](DEMO-RELEASE-CHECKLIST.md) to select a reviewed
+   revision and collect the outstanding operator and human evidence. Keep completed
+   participant records and generated databases private.
 2. The owner arranges a volunteer and trainer. Run the first human session using the
    facilitator sheet; record observations and manual assessment scores separately from
    automated fixture results. Replace any public assessment forms participants have seen.
@@ -457,8 +460,8 @@ content/product before expanding. If recovery or authorization fails, delay prod
    [upgrade and recovery rehearsal](UPGRADE-REHEARSAL.md) and its separate CI evidence
    for preserved learning, new writes and matching-backup rollback. The owner selects
    a reviewed revision and records their actual installation and recovery outcome.
-5. Review the focused [keyboard and mobile changes](ACCESSIBILITY-REVIEW.md) and
-   their browser regressions through a feature PR. Complete the listed human
+5. The focused [keyboard and mobile changes](ACCESSIBILITY-REVIEW.md) and their
+   browser regressions are merged through PR #7 with passing CI. Complete the listed human
    assistive-technology and physical-device checks alongside the first pilot.
 6. If an externally hosted demo is needed, compare low-cost hosting options, document
    access and recovery needs, and obtain the owner's deployment/budget approval.
@@ -467,7 +470,8 @@ content/product before expanding. If recovery or authorization fails, delay prod
    not a commitment that starts before those decisions.
 
 The container, browser CI, demo operability and automated upgrade rehearsal are
-merged. The keyboard and mobile fixes are the next reviewed source change.
+merged, including the keyboard and mobile fixes. The next review item is the
+demo release handover linking those checks to actual operator and pilot records.
 The next human evidence milestone is the first pilot, followed by observed fixes
 and an operator installation/update record. This plan alone authorizes
 no external deployment or spending. Production gates remain in the release checklist.
