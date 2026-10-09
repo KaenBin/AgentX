@@ -1,8 +1,12 @@
 /* Readiness is returned by the server, never inferred from a quiz percentage. */
+
+/** Replace the matching session in the workspace cache with authoritative server state. */
 function saveLearning(session) {
   S.learning_sessions = [...(S.learning_sessions || []).filter(s => s.id !== session.id), session];
 }
 
+
+/** Render a course's saved readiness evidence and wire activity and trainer-question actions. A late next-activity result stays cached without overwriting another tab or course. */
 function readinessView(c) {
   selected = c.id;
   const session = (S.learning_sessions || []).find(s => s.course_id === c.id && s.user_id === S.user.id);
@@ -19,7 +23,7 @@ function readinessView(c) {
       ${label === 'ready' ? '<p>You demonstrated the required steps in this procedure version. This is training evidence, not professional certification.</p>' : ''}
       ${label === 'blocked' ? '<p>This source or course is no longer approved. Ask your trainer for current material.</p>' : ''}
       ${label === 'needs_trainer' ? '<p>The available fresh cases are exhausted. Your trainer has a saved review item. Further reassessment needs a newly approved course.</p>' : ''}
-      <p id="selection-reason" class="muted" role="status" aria-live="polite"></p>
+      <p id="selection-reason" class="muted"></p>
     </div>
     ${activity ? learningActivityHtml(activity) : ''}
     ${session ? '<div class="card"><h3>Ask your trainer</h3><form id="learning-question"><label for="review-question">Question or uncertain policy detail</label><textarea id="review-question" required maxlength="2000"></textarea><button>Save review request</button></form></div>' : ''}
@@ -31,18 +35,21 @@ function readinessView(c) {
     ${o.diagnostic_correct !== undefined && o.diagnostic_correct !== null ? `<small>Diagnostic: ${o.diagnostic_correct ? 'correct' : 'gap identified'}</small>` : ''}
     ${(o.evidence || []).map(e => `<p class="muted">${esc(e.kind)} · ${e.correct === null ? 'reviewed' : e.correct ? 'correct' : 'needs practice'}</p>`).join('')}</div>`).join('')}
   </div></aside></div>`;
-  $('course').onchange = e => {selected = Number(e.target.value); learn();};
+  $('course').onchange = e => changeCourse(e.target.value);
   if ($('continue-learning')) $('continue-learning').onclick = e => run(e.currentTarget, async () => {
     $('selection-reason').textContent = 'Checking your saved evidence and choosing an eligible activity…';
+    announce($('selection-reason').textContent);
     const current = session || await api('/api/learning/start', {course_id:c.id});
     saveLearning(current);
     let response;
     try { response = await api(`/api/learning/${current.id}/next`, {}); }
     catch (error) { $('selection-reason').textContent = 'Could not load the next step. Retry to resume your saved progress.'; throw error; }
     saveLearning(response.session);
+    if (tab !== 'learn' || selected !== c.id) return;
     readinessView(c);
     $('selection-reason').textContent = `${response.selection_mode === 'gateway' ? 'Agent selected' : response.selection_mode === 'demo' ? 'Offline simulation selected' : 'Resumed'}: ${response.reason}`;
-  });
+    announce($('selection-reason').textContent);
+  }, '#learning-answer h2, #content h2');
   if ($('learning-answer')) $('learning-answer').onsubmit = e => {
     e.preventDefault();
     run(e.submitter, async () => {
@@ -51,17 +58,22 @@ function readinessView(c) {
       saveLearning(response.session);
       readinessView(c);
       $('selection-reason').textContent = `${response.correct === null ? '' : response.correct ? 'Correct. ' : 'Review this step. '}${response.feedback}`;
-    });
+      announce($('selection-reason').textContent);
+    }, '#continue-learning, #content h2');
   };
   if ($('learning-question')) $('learning-question').onsubmit = e => {
     e.preventDefault();
     run(e.submitter, async () => {
       saveLearning(await api(`/api/learning/${session.id}/review`, {reason:$('review-question').value}));
       readinessView(c);
-    });
+      $('selection-reason').textContent = 'Review request saved for your trainer.';
+      announce($('selection-reason').textContent);
+    }, '#review-question');
   };
 }
 
+
+/** Render a server-issued lesson or an answer form with labeled choices. */
 function learningActivityHtml(activity) {
   return `<form id="learning-answer" class="card"><span class="tag">${esc(activity.kind)}</span><h2>${esc(activity.title)}</h2>
     ${activity.kind === 'lesson' ? `<p class="text">${esc(activity.text)}</p><p class="muted">Approved source · Section ${activity.source_section}</p><button>I have reviewed this step</button>` :
@@ -69,12 +81,16 @@ function learningActivityHtml(activity) {
   </form>`;
 }
 
+
+/** Render saved learner procedure evidence or the trainer readiness dashboard. */
 function learningEvidenceHtml() {
   if (S.user.role === 'trainer') return trainerDashboardHtml();
   const sessions = S.learning_sessions || [];
   return sessions.length ? `<div class="card"><h2>Procedure readiness</h2>${sessions.map(s => `<details class="source"><summary>${esc(s.title)} · ${esc(S.user.role === 'trainer' ? 'Learner '+s.user_id+' · ' : '')}${esc(s.state.replaceAll('_',' '))}</summary><p>${esc(s.source_title)} · Rule ${s.rule_version}</p>${s.objectives.map(o=>`<p><b>${esc(o.title)}</b> ${o.critical ? '(critical)' : ''}: ${o.carried_from_session ? 'equivalent evidence from session '+o.carried_from_session : o.demonstrated ? 'demonstrated' : 'pending'}<br><small>${o.evidence.map(e=>`${esc(e.kind)}: ${e.correct === null ? 'reviewed' : e.correct ? 'correct' : 'needs practice'}`).join(' → ')}</small></p>`).join('')}</details>`).join('')}</div>` : '';
 }
 
+
+/** Summarize current sessions and objective evidence while excluding superseded versions. */
 function dashboardSummary(sessions) {
   const current = sessions.filter(s => s.state !== 'superseded');
   return {
@@ -91,6 +107,8 @@ function dashboardSummary(sessions) {
   };
 }
 
+
+/** Render expandable source, objective, decision and review evidence for one session. */
 function trainerSessionEvidence(s) {
   return `<details class="source" id="session-evidence-${s.id}"><summary>Learner ${s.user_id} · ${esc(s.title)} · ${esc(s.state.replaceAll('_',' '))}</summary>
     <p>${esc(s.source_title)} · readiness rule ${s.rule_version}</p>
@@ -100,6 +118,8 @@ function trainerSessionEvidence(s) {
   </details>`;
 }
 
+
+/** Render readiness totals, session filters and evidence drill-down for trainers. */
 function trainerDashboardHtml() {
   const sessions = S.learning_sessions || [];
   const summary = dashboardSummary(sessions);
@@ -119,6 +139,8 @@ function trainerDashboardHtml() {
     <details><summary>Superseded session history (${sessions.length-summary.current.length})</summary>${sessions.filter(s => s.state === 'superseded').map(trainerSessionEvidence).join('') || '<p>No superseded sessions.</p>'}</details></section>`;
 }
 
+
+/** Filter current-session rows without changing the dashboard's overall summary totals. */
 function filterDashboard(value) {
   const rows = document.querySelectorAll('[data-dashboard-state]');
   let visible = 0;
@@ -130,6 +152,8 @@ function filterDashboard(value) {
   $('dashboard-empty').hidden = visible > 0;
 }
 
+
+/** Expand a learner's evidence, bring it into view and focus its summary control. */
 function openSessionEvidence(id) {
   const detail = $('session-evidence-'+id);
   if (!detail) return;
@@ -138,11 +162,15 @@ function openSessionEvidence(id) {
   detail.querySelector('summary').focus();
 }
 
+
+/** Render the trainer's saved review queue with inputs for unresolved guidance. */
 function trainerReviewsHtml() {
   if (S.user.role !== 'trainer') return '';
   return `<div class="card"><h2>Learner review queue</h2>${(S.learning_sessions || []).flatMap(s => s.reviews.map(r => `<div class="source"><b>Learner ${s.user_id} · ${esc(s.title)}</b><p>${esc(r.reason)}</p><span class="tag">${esc(r.status)}</span>${r.status === 'open' ? `<label for="resolution-${r.id}">Trainer guidance</label><textarea id="resolution-${r.id}" maxlength="2000"></textarea><button onclick="resolveLearningReview(this,${r.id})">Record guidance</button>` : `<p>${esc(r.resolution)}</p>`}</div>`)).join('') || '<p>No saved review requests.</p>'}<p class="muted">Recording guidance does not award a pass. Exhausted cases need a new approved course.</p></div>`;
 }
 
+
+/** Record trainer guidance through the API and refresh the workspace without awarding readiness. */
 function resolveLearningReview(button, id) {
   run(button, async () => {
     await api(`/api/learning/reviews/${id}/resolve`, {resolution:$('resolution-'+id).value});

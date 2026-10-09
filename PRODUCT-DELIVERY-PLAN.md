@@ -452,20 +452,22 @@ content/product before expanding. If recovery or authorization fails, delay prod
    automated fixture results. Replace any public assessment forms participants have seen.
 3. Fix demonstrated pilot blockers and confusing version/error states through reviewed
    feature PRs. Add regression coverage for each meaningful behavior change.
-4. Demo operability is merged to `dev` through PR #5 with passing CI. Review the
+4. Demo operability and upgrade rehearsal are merged to `dev` through PRs #5 and
+   #6 with passing CI. Review the
    [upgrade and recovery rehearsal](UPGRADE-REHEARSAL.md) and its separate CI evidence
    for preserved learning, new writes and matching-backup rollback. The owner selects
    a reviewed revision and records their actual installation and recovery outcome.
-5. Review accessibility and mobile behavior beyond the four automated browser cases.
-   Record gaps and verify fixes with both automated checks and human observation.
+5. Review the focused [keyboard and mobile changes](ACCESSIBILITY-REVIEW.md) and
+   their browser regressions through a feature PR. Complete the listed human
+   assistive-technology and physical-device checks alongside the first pilot.
 6. If an externally hosted demo is needed, compare low-cost hosting options, document
    access and recovery needs, and obtain the owner's deployment/budget approval.
 7. When a company joins, confirm its content, identity, data handling and support needs;
    then re-estimate the production phases and backlog. The schedule above is provisional,
    not a commitment that starts before those decisions.
 
-The container, browser CI and demo operability foundation are merged. The automated
-upgrade rehearsal is the next reviewed source change; it covers fictional fixtures.
+The container, browser CI, demo operability and automated upgrade rehearsal are
+merged. The keyboard and mobile fixes are the next reviewed source change.
 The next human evidence milestone is the first pilot, followed by observed fixes
 and an operator installation/update record. This plan alone authorizes
 no external deployment or spending. Production gates remain in the release checklist.
