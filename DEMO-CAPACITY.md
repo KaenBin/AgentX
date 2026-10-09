@@ -91,3 +91,32 @@ artifact, its run, full source revision and checksum before it expires.
 Use a clean committed run's JSON report as the baseline evidence. Provider sizing remains an open validation step in
 [DEMO-HOSTING-OPTIONS.md](DEMO-HOSTING-OPTIONS.md). Human pilot outcomes remain
 separate evidence in the [release handover](DEMO-RELEASE-CHECKLIST.md).
+
+On **9 October 2026 at 09:13:29 UTC (17:13 Singapore)**, one clean local run of
+[`fa1eb92f2eb5cc57e3a1c1fab1d671ecbe8b03c5`](https://github.com/KaenBin/AgentX/commit/fa1eb92f2eb5cc57e3a1c1fab1d671ecbe8b03c5)
+passed all three stages and persisted-result checks. Environment: Windows 11 AMD64,
+Python 3.13.1, 16 logical CPUs and 33,737,945,088 bytes of host RAM; psutil 7.2.2,
+httpx 0.28.1, FastAPI 0.142.4 and Uvicorn 0.54.0. Every stage used five read rounds
+and one worker; the owned process tree contained the launcher and application process.
+
+| Learners + trainer | Requests / failures | Startup (ms) | Workload (s) | p50 / p95 (ms) | Peak sampled RSS (MiB) | Average CPU cores | SQLite growth (bytes) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 + 1 | 48 / 0 | 2,195.0 | 1.858 | 16.5 / 36.2 | 56.64 | 0.496 | 0 |
+| 5 + 1 | 213 / 0 | 2,086.5 | 5.994 | 58.8 / 183.9 | 59.46 | 0.792 | 36,864 |
+| 10 + 1 | 418 / 0 | 2,123.2 | 11.333 | 99.8 / 436.6 | 61.54 | 0.764 | 81,920 |
+
+Report: `output/benchmark/windows-tree-baseline.json` (local, ignored by Git).
+SHA-256: `53f777022e7db989aeb701a33a6d9f90a66345113ac58e9c6f335d72b249dab4`.
+Save the JSON outside Git with the release record if retaining this evidence.
+
+This single run has no repeat-run confidence interval or enforced CPU/memory limit.
+The larger stages averaged more than half a core on this host; a small provider tier
+can have different CPU availability and latency. The sampled memory result therefore
+does not validate the $7 hosting tier, and the short CPU average does not replace
+Railway's full-month usage assumptions. Zero file growth in the smallest stage means
+existing SQLite pages accommodated the writes, not that no answers were saved.
+
+The earlier `7b32bb2` Windows run sampled only the virtual-environment launcher.
+Its resource readings were invalid, its local report was marked `outcome: invalid`,
+and it is excluded from this baseline. The corrected tree sampler and shutdown have
+a regression test using a real child process holding a 64 MiB allocation.
