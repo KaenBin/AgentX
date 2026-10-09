@@ -25,6 +25,7 @@ def client(tmp_path, monkeypatch):
 def test_ready_checks_initialized_database_without_model_calls(client, monkeypatch):
     """Readiness reports the deployed app while liveness keeps its existing shape."""
     def no_model(*args, **kwargs):
+        """Fail the probe test if readiness attempts to use the model gateway."""
         raise AssertionError("A readiness probe must not call the gateway")
 
     monkeypatch.setattr("src.agents.worker.GatewayWorker.chat", no_model)
@@ -142,6 +143,7 @@ def test_unexpected_error_is_correlated_without_exception_or_request_data(
     secret = "private-password-and-chat-text"
 
     def broken_user(token):
+        """Raise private exception text to exercise the generic error response."""
         raise RuntimeError(secret)
 
     monkeypatch.setattr(db, "user", broken_user)
@@ -170,6 +172,7 @@ def test_handled_gateway_failure_has_safe_metadata(client, monkeypatch, capfd):
     secret = "private-question-and-provider-message"
 
     def unavailable(*args):
+        """Simulate a handled gateway failure containing a privacy canary."""
         raise GatewayError(secret)
 
     monkeypatch.setattr("src.main.TrainingOrchestrator.run", unavailable)
@@ -204,13 +207,16 @@ def test_interrupted_response_reraises_only_a_safe_error(capfd):
     sent = []
 
     async def broken(scope, receive, send):
+        """Start a response before raising an exception with private text."""
         await send({"type": "http.response.start", "status": 200, "headers": []})
         raise RuntimeError(secret)
 
     async def send(message):
+        """Collect ASGI response messages for header and interruption assertions."""
         sent.append(message)
 
     async def receive():
+        """Supply an empty ASGI HTTP request to the diagnostic middleware."""
         return {"type": "http.request", "body": b""}
 
     with pytest.raises(RuntimeError) as error:
@@ -234,9 +240,11 @@ def test_non_http_scope_passes_through_without_request_logging(capfd):
     scopes = []
 
     async def downstream(scope, receive, send):
+        """Record the unchanged non-HTTP scope received from the middleware."""
         scopes.append(scope)
 
     async def noop():
+        """Provide an unused protocol callback for the lifespan passthrough test."""
         pass
 
     asyncio.run(RequestDiagnostics(downstream)({"type": "lifespan"}, noop, noop))

@@ -33,6 +33,7 @@ app.mount("/static", StaticFiles(directory=ROOT / "src" / "web"), name="static")
 
 @app.middleware("http")
 async def rehearsal_scope(request: Request, call_next):
+    """Scope browser requests to rehearsal data, leaving deployment probes on main."""
     import sqlite3
     from src.workflows.rehearsal import lookup
     from src.core.config import MODE_OVERRIDE
@@ -96,6 +97,7 @@ async def forbidden(request, exc):
 
 @app.exception_handler(GatewayError)
 async def gateway_failure(request, exc):
+    """Return the adapter's gateway error and classify it for request diagnostics."""
     request.state.diagnostic_error = "gateway_unavailable"
     return JSONResponse({"error": str(exc)}, status_code=503)
 
