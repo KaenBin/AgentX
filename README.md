@@ -40,6 +40,8 @@ For a dated low-cost comparison before choosing remote hosting, see
 [DEMO-HOSTING-OPTIONS.md](DEMO-HOSTING-OPTIONS.md).
 For repeatable offline resource measurements and concurrent saved-result checks,
 see [DEMO-CAPACITY.md](DEMO-CAPACITY.md).
+For reviewed dependency updates and consistent hashed environments, see
+[DEPENDENCY-MAINTENANCE.md](DEPENDENCY-MAINTENANCE.md).
 
 ## Try the complete journey
 
