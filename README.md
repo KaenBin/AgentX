@@ -38,6 +38,8 @@ Use the [demo release handover](DEMO-RELEASE-CHECKLIST.md) to select a reviewed
 revision and record the actual installation, recovery and first human pilot.
 For a dated low-cost comparison before choosing remote hosting, see
 [DEMO-HOSTING-OPTIONS.md](DEMO-HOSTING-OPTIONS.md).
+For repeatable offline resource measurements and concurrent saved-result checks,
+see [DEMO-CAPACITY.md](DEMO-CAPACITY.md).
 
 ## Try the complete journey
 

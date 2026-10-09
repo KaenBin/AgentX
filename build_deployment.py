@@ -25,6 +25,7 @@ for name in [
     'ACCESSIBILITY-REVIEW.md',
     'DEMO-RELEASE-CHECKLIST.md',
     'DEMO-HOSTING-OPTIONS.md',
+    'DEMO-CAPACITY.md', 'benchmark_demo.py',
 ]:
     files.append(root / name)
 payload = {p.relative_to(root).as_posix(): p.read_bytes() for p in sorted(set(files))}

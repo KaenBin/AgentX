@@ -463,7 +463,10 @@ content/product before expanding. If recovery or authorization fails, delay prod
 5. The focused [keyboard and mobile changes](ACCESSIBILITY-REVIEW.md) and their
    browser regressions are merged through PR #7 with passing CI. Complete the listed human
    assistive-technology and physical-device checks alongside the first pilot.
-6. Review the dated [low-cost hosting comparison](DEMO-HOSTING-OPTIONS.md) if remote
+6. Use the [isolated capacity benchmark](DEMO-CAPACITY.md) to measure offline
+   resource use and concurrent saved-result correctness. Retain its exact revision
+   and environment; validate capacity on the selected provider before hosting.
+   Review the dated [low-cost hosting comparison](DEMO-HOSTING-OPTIONS.md) if remote
    access is needed. Recheck its assumptions and prices, estimate the access/backup
    costs and obtain the owner's provider and budget decision before implementing
    managed-host configuration and recovery instructions.

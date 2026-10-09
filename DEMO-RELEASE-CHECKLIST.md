@@ -23,6 +23,10 @@ alone does not identify the installed source. Later changes need their own evide
 | Upgrade rehearsal | Pinned `0.2.0` baseline to selected source, preserved evidence, new writes, restore and matching-backup rollback | [Upgrade rehearsal](UPGRADE-REHEARSAL.md), integration CI above |
 | Source bundle | Explicit file allowlist, manifest hashes, archive integrity and configured-key exclusion when rebuilt | `build_deployment.py` |
 
+For local resource and concurrent-result evidence collected separately from these
+integration checks, use [DEMO-CAPACITY.md](DEMO-CAPACITY.md). It does not establish
+hosted sizing or human pilot outcomes.
+
 CodeRabbit confirmed and resolved PR #7's stale next-activity response finding.
 Documentation comments were added to all 32 named UI functions, verified locally.
 Its requested full documentation-coverage recheck was rate-limited; the earlier

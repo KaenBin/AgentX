@@ -30,6 +30,10 @@ The small memory tier and Railway average-use scenarios below are **assumptions*
 We have not measured hosted memory peaks, concurrent-user capacity, outbound
 traffic or recovery duration. The pilot plan's 5–10 participants does not establish
 that a 512 MB instance can support that many simultaneous active users.
+Use the [isolated capacity benchmark](DEMO-CAPACITY.md) to collect a repeatable
+local baseline. Its process RSS and short CPU averages do not establish provider
+billable usage, hosted memory headroom or sustained concurrent-user capacity;
+the pricing scenarios below remain assumptions until the selected host is measured.
 
 | Option | Application/storage estimate | Fit and remaining work |
 | --- | --- | --- |
