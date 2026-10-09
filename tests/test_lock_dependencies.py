@@ -67,6 +67,7 @@ def test_compile_in_order_and_commit_only_complete_valid_layers(tmp_path):
         assert {name: (tmp_path / name).read_bytes() for name in LOCKS} == before
         assert cwd != tmp_path
         assert "--generate-hashes" in command and "--no-config" in command
+        assert "--no-reuse-hashes" in command
         assert "--upgrade" in command
         assert kwargs["check"] is True and kwargs["timeout"] > 0
         if index:

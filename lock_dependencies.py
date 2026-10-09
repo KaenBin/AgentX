@@ -85,6 +85,7 @@ def update_locks(root, *, upgrade=False, packages=(), runner=subprocess.run):
         env["PIP_TOOLS_CACHE_DIR"] = str(stage / "cache")
         for index, (source, output) in enumerate(LAYERS):
             command = [sys.executable, "-m", "piptools", "compile", "--generate-hashes",
+                       "--no-reuse-hashes",
                        "--no-config", "--no-emit-options", "--strip-extras", "--quiet", "--newline=lf",
                        f"--output-file={output}", source]
             if index:
