@@ -40,11 +40,13 @@ def run_build(source, output, *options):
 
 
 def test_import_does_not_build_or_overwrite_output(source):
+    """Ensure importing the builder leaves the filesystem untouched."""
     runpy.run_path(str(source / "build_deployment.py"), run_name="bundle_import")
     assert not (source / "output").exists()
 
 
 def test_cli_builds_verified_allowlisted_bundle_at_selected_output(source, tmp_path):
+    """Verify selected output, private-file exclusion, manifest hashes and document links."""
     private = b"private-fixture-" + b"do-not-ship"
     for name in (".env", "participant-results.md", "data/private.db", "tmp/private.md",
                  "output/private.md", "skills/private.md", ".codex/private.md",
@@ -84,6 +86,7 @@ def test_cli_builds_verified_allowlisted_bundle_at_selected_output(source, tmp_p
 
 
 def test_same_source_produces_identical_archives(source, tmp_path):
+    """Require identical ZIP bytes across builds separated by a timestamp interval."""
     first, second = tmp_path / "first", tmp_path / "second"
     assert run_build(source, first).returncode == 0
     # Cross a ZIP timestamp interval so a current-time writer cannot pass by luck.
@@ -94,6 +97,7 @@ def test_same_source_produces_identical_archives(source, tmp_path):
 
 @pytest.mark.parametrize("optimized", [False, True])
 def test_configured_key_in_payload_fails_before_replacing_existing_artifact(source, tmp_path, optimized):
+    """Keep prior artifacts intact and diagnostics private when a key leaks into source."""
     secret = "fixture-key-that-must-not-appear-in-diagnostics"
     (source / ".env").write_text(f"LLM_GATEWAY_API_KEY='{secret}'\n", encoding="utf-8")
     (source / "README.md").write_text(secret, encoding="utf-8")
@@ -111,6 +115,7 @@ def test_configured_key_in_payload_fails_before_replacing_existing_artifact(sour
 
 
 def test_missing_required_file_fails_without_creating_artifact(source, tmp_path):
+    """Reject incomplete source before creating an output directory or archive."""
     (source / "requirements-runtime.txt").unlink()
     output = tmp_path / "artifact"
     result = run_build(source, output)
@@ -119,6 +124,7 @@ def test_missing_required_file_fails_without_creating_artifact(source, tmp_path)
 
 
 def test_default_cli_and_extracted_bundle_can_rebuild(source, tmp_path):
+    """Preserve the default output path and rebuild identical bytes from extracted source."""
     result = subprocess.run([sys.executable, str(source / "build_deployment.py")],
                             cwd=source, capture_output=True, timeout=30)
     assert result.returncode == 0, result.stderr
@@ -131,6 +137,7 @@ def test_default_cli_and_extracted_bundle_can_rebuild(source, tmp_path):
 
 
 def test_file_link_outside_source_is_rejected(source, tmp_path):
+    """Prevent allowlisted file links from bringing external content into the ZIP."""
     private = tmp_path / "external.txt"
     private.write_text("outside source", encoding="utf-8")
     try:
