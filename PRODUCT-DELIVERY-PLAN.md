@@ -477,6 +477,9 @@ content/product before expanding. If recovery or authorization fails, delay prod
 Use [dependency maintenance](DEPENDENCY-MAINTENANCE.md) for monthly reviewed updates
 while human pilot arrangements are pending. Its lock consistency check is automated;
 update selection, advisory review and merge decisions remain with the owner.
+The [dependency advisory check](DEPENDENCY-ADVISORIES.md) adds dated known-advisory
+evidence for locked runtime/test packages; its scope excludes source code, Python
+and container OS security. Findings and incomplete audits remain visible CI failures.
 
 The container, browser CI, demo operability and automated upgrade rehearsal are
 merged, including the keyboard and mobile fixes. The demo release handover is

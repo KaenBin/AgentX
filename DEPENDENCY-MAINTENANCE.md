@@ -20,6 +20,12 @@ in child locks. CI runs this check on both Windows and Linux. It checks the lock
 format and shared pins; the locked installations and test jobs establish whether
 the dependencies actually install and work.
 
+The advisory auditor depends on `pip-api`, which requires `pip`. Development and
+browser locks therefore include a hashed pip pin with a reviewed major-version
+bound. The updater's `--allow-unsafe` option tells pip-tools to include packaging
+tools rather than omitting them; it does not disable hash checking. Runtime
+dependencies and the container install are independent of these developer tools.
+
 The checker deliberately accepts only the current plain `name==version` plus
 hashes format. URLs, index directives, extras and environment markers require a
 reviewed change to the checker and platform validation before introducing them.
@@ -76,6 +82,8 @@ or edit inputs/locks while resolution is running.
 ## Validate and request review
 
 1. Review all input and lock diffs, upstream release notes and applicable advisories.
+   Run [the advisory check](DEPENDENCY-ADVISORIES.md) and retain its dated report;
+   findings and incomplete checks fail the dedicated CI job.
    Record the reason, old/new versions, compatibility concerns and compiler version
    in the PR. Review removed packages and changed hashes as well as new versions.
 2. Install `requirements.txt` with `--require-hashes` into a fresh Python 3.13
@@ -95,7 +103,7 @@ or edit inputs/locks while resolution is running.
 
 Do not relax hash checking or bypass failing jobs to make an update pass. If an
 update is unsuitable, correct it or close the PR. Vulnerability assessment is a
-separate review; this tool does not scan advisories or claim no vulnerabilities.
+separate review; the lock updater does not scan advisories or claim no vulnerabilities.
 
 ## Install and recover
 
