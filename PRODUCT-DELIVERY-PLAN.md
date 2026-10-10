@@ -40,7 +40,7 @@ supported deployment. Retain deterministic scoring and human content approval.
 | Tests | Backend Python, 15 Chromium browser and 2 Node dashboard tests; container, upgrade and capacity jobs in CI | Production DB tests, sustained load, security, production recovery and human pilot |
 | Operations | Main-database readiness, generated request IDs, metadata-only HTTP logs, versioned demo release record and operator guide | Hosted telemetry retention, dashboards, alerts, production support and incident drills |
 | Dependencies | Hashed runtime, developer and browser lockfiles; layered update command and manual monthly review procedure; test tools excluded from runtime image | Scheduled update PRs and upgrade compatibility evidence |
-| Packaging | Explicit source allowlist; ZIP/checksum build in CI; manifest, link and exclusion regressions on Windows/Linux | Owner retains selected artifact and records its actual installation; private pilot records stay excluded |
+| Packaging | Explicit source allowlist; ZIP/checksum build and extracted-source container smoke in CI; manifest, link and exclusion regressions on Windows/Linux | Owner retains selected artifact and records its actual installation; private pilot records stay excluded |
 
 Primary scope is `employee-training-assistant` in [KaenBin/AgentX](https://github.com/KaenBin/AgentX).
 `dev` is the integration branch and `master` is production. Both have owner-controlled
@@ -480,7 +480,8 @@ update selection, advisory review and merge decisions remain with the owner.
 The [dependency advisory check](DEPENDENCY-ADVISORIES.md) adds dated known-advisory
 evidence for locked runtime/test packages; its scope excludes source code, Python
 and container OS security. Findings and incomplete audits remain visible CI failures.
-The [source bundle check](SOURCE-BUNDLE.md) builds and retains a ZIP/checksum in CI;
+The [source bundle check](SOURCE-BUNDLE.md) builds a ZIP/checksum, runs container
+installation/recovery from its extracted source, then retains it in CI;
 retain the selected run's artifact before its 14-day expiry. Its checks do not
 replace the actual operator installation, recovery or human pilot records.
 

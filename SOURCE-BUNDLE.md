@@ -1,9 +1,13 @@
 # Build and retain the demo source bundle
 
 The `source-bundle` CI job builds the fictional-data demo source ZIP and its
-SHA-256 checksum without installing application dependencies. Its artifact,
-`demo-source-bundle`, is retained for 14 days. It is source for an installation,
-not a container image or evidence that a human has installed the demo.
+SHA-256 checksum, extracts that ZIP into separate source storage, and runs the
+existing container installation/recovery smoke test from the extracted files.
+The host packaging tools use Python's standard library; the smoke image installs
+the bundled hashed runtime dependencies. The ZIP and checksum are uploaded only
+after that smoke test passes. The `demo-source-bundle` artifact is retained for
+14 days. It is source for an installation, not a published container image or
+evidence that a human has installed the demo.
 
 For an installation, select the `push` run on `dev` for the owner's merged full
 commit, with all applicable CI jobs passing. Save that run's
@@ -61,12 +65,35 @@ creates a different candidate requiring its own review evidence.
 - Windows/Linux regression tests check checksum and manifest coverage, required
   documents, local Markdown links, private-file exclusion, repeated builds and
   configured-key rejection even with Python optimization enabled.
+- The Ubuntu packaging job builds and starts a container using only the extracted
+  source. It checks readiness, request IDs, safe logs, sign-in, seeded content,
+  unprivileged runtime, runtime/test dependency separation, persistent writes,
+  stopped-app backup and empty-storage recovery. Restore refusal checks cover
+  running/paused containers and nonempty target storage. The existing smoke helper
+  creates and cleans up only its uniquely named disposable Compose project.
+
+To repeat the extracted-source check locally, build a candidate first and use
+a new extraction directory with Python 3.13 and Docker with Compose available:
+
+```powershell
+python -m zipfile -e output/source-candidate/AgentX_Learn_Deployment.zip output/bundle-smoke-local
+Set-Location output/bundle-smoke-local
+python container_smoke.py
+```
+
+Choose an empty extraction directory; do not overlay a previous checkout, private
+files or a prior extraction. That would make it harder to detect missing bundled
+files. The helper needs network access to fetch the pinned base image and hashed
+packages. The fictional offline app makes no gateway calls. CI runs this check
+on a clean Ubuntu runner; it does not establish actual operator or hosted results,
+Windows Docker behavior, live-model behavior or a bare-Python installation.
 
 A missing required file or a key in the payload fails before output creation
 or replacement. Diagnostics omit file contents and exception details. Archive
 and checksum replacement are two filesystem operations, not a transaction;
 interruption or an output error may leave a mismatched pair. Always compare
-the ZIP hash with the checksum before using it. A failed CI build is not uploaded.
+the ZIP hash with the checksum before using it. A failed CI build, extraction
+or container smoke check is not uploaded as a successful source artifact.
 
 Hashes detect a mismatch against a retained trusted checksum; they are not a
 signature, authenticity guarantee or complete security review. The bundle has
