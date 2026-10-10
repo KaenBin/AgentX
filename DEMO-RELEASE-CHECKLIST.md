@@ -7,13 +7,17 @@ record that those human actions have happened.
 
 ## Reviewed source and evidence
 
-The current application version is `0.3.0`. The owner merged the keyboard/mobile
-work in [PR #7](https://github.com/KaenBin/AgentX/pull/7) into `dev` as
-[`6e7222a`](https://github.com/KaenBin/AgentX/commit/6e7222ab88c1de7af7529f2bebf82f7f9ed2217b)
-on 9 October 2026 at 15:26 Singapore. All five jobs passed for that integration
-revision in [CI run 37899064809](https://github.com/KaenBin/AgentX/actions/runs/37899064809).
+The current application version is `0.3.0`. The reviewed integration baseline is
+[`d31f6dd`](https://github.com/KaenBin/AgentX/commit/d31f6dd42953f9aa1ec0ea7056af27da026fe5b9),
+merged into `dev` by the owner through
+[PR #12](https://github.com/KaenBin/AgentX/pull/12) on 10 October 2026 at 09:37 Singapore.
+All seven jobs passed for that integration revision in
+[CI run 38013918027](https://github.com/KaenBin/AgentX/actions/runs/38013918027).
 Select the full reviewed commit for an installation; a branch name or app version
 alone does not identify the installed source. Later changes need their own evidence.
+Use the `push` CI run for the owner's merged `dev` commit. Pull-request artifacts
+may contain a temporary merge revision; keep those as review evidence rather
+than attributing them to the later approved installation commit.
 
 | Evidence | What it establishes | Reference |
 | --- | --- | --- |
@@ -21,26 +25,31 @@ alone does not identify the installed source. Later changes need their own evide
 | Chromium browser checks | Fictional learner/trainer journeys, keyboard focus, navigation and selected contrast checks | [Browser testing](BROWSER-TESTING.md), [focused review](ACCESSIBILITY-REVIEW.md) |
 | Container smoke checks | Container startup, persistent storage, probes and recovery fixtures | [Demo deployment](DEMO-DEPLOYMENT.md) |
 | Upgrade rehearsal | Pinned `0.2.0` baseline to selected source, preserved evidence, new writes, restore and matching-backup rollback | [Upgrade rehearsal](UPGRADE-REHEARSAL.md), integration CI above |
-| Source bundle | Explicit file allowlist, manifest hashes, archive integrity and configured-key exclusion when rebuilt | `build_deployment.py` |
+| Dependency advisories | Complete known-advisory check for all locked runtime/development/browser Python packages | [Advisory scope and reports](DEPENDENCY-ADVISORIES.md), integration CI above |
+| Source bundle | Explicit allowlist, manifest hashes, archive integrity and configured-key exclusion | [Bundle build and retention](SOURCE-BUNDLE.md); use a passing `source-bundle` job from the selected later revision |
 
 For local resource and concurrent-result evidence collected separately from these
 integration checks, use [DEMO-CAPACITY.md](DEMO-CAPACITY.md). It does not establish
 hosted sizing or human pilot outcomes.
 
-CodeRabbit confirmed and resolved PR #7's stale next-activity response finding.
-Documentation comments were added to all 32 named UI functions, verified locally.
-Its requested full documentation-coverage recheck was rate-limited; the earlier
-35.29% warning is not evidence of a fresh check on the corrected revision.
+CodeRabbit confirmed and resolved PR #12's source-identity finding. Its docstring
+coverage warning remains advisory; its green status does not waive the limits
+of the dependency scan. Earlier release reviews are recorded in [RELEASES.md](RELEASES.md).
 
-The CI upgrade report is retained for 14 days. Before expiry, save the approved
-`demo-upgrade-rehearsal` artifact with the private release record. Record its run,
-source commit and checksum. The report contains safe fixture outcomes; it does
+CI reports and the source bundle are retained for 14 days. Before expiry, save
+the selected run's `demo-upgrade-rehearsal`, `demo-capacity-benchmark`,
+`dependency-advisories` and, when its packaging job is present, `demo-source-bundle`
+artifacts with the private release record. Record the run, source commit and
+checksums. Packaging CI is a follow-up to the seven-job baseline above; do not
+attribute its artifact to that earlier run. Reports contain safe fixture outcomes; they do
 not replace a backup of the operator's actual data. See the upgrade guide for
 its fields and limits.
 
 ## Select and install
 
 - [ ] Owner selects the reviewed full commit and records its CI run and limitations.
+- [ ] Operator retains that run's source bundle/reports before artifact expiry and
+      verifies the ZIP checksum before extraction, where using a bundled installation.
 - [ ] Operator records the machine, installation time and chosen offline/live mode.
 - [ ] Operator verifies Python 3.13, or Docker with Compose for a container install.
 - [ ] Existing demo data is backed up with the app stopped before an update.

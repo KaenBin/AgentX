@@ -11,7 +11,7 @@ Node.js for the dashboard tests. Extract the ZIP into a new folder, then run:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install --require-hashes -r requirements.txt
 $env:AGENT_MODE = 'demo'
 .\start.ps1 -Port 8013
 ```
@@ -44,6 +44,9 @@ requirements-runtime.txt (runtime). See DEMO-DEPLOYMENT.md for the container
 deployment, dependency update procedure, persistent data and backup instructions.
 
 ## Integrity and scope
+
+Use [SOURCE-BUNDLE.md](SOURCE-BUNDLE.md) to select and retain a CI artifact,
+verify the ZIP checksum before extraction, or rebuild from the selected source.
 
 MANIFEST.sha256 lists every payload file and its SHA-256 digest, except the manifest
 itself. The separate artifact checksum identifies the complete ZIP. The bundle uses
