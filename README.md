@@ -42,6 +42,8 @@ For repeatable offline resource measurements and concurrent saved-result checks,
 see [DEMO-CAPACITY.md](DEMO-CAPACITY.md).
 For reviewed dependency updates and consistent hashed environments, see
 [DEPENDENCY-MAINTENANCE.md](DEPENDENCY-MAINTENANCE.md).
+For dated checks of known package advisories and their limits, see
+[DEPENDENCY-ADVISORIES.md](DEPENDENCY-ADVISORIES.md).
 
 ## Try the complete journey
 
