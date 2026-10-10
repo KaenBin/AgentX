@@ -5,11 +5,17 @@ SHA-256 checksum without installing application dependencies. Its artifact,
 `demo-source-bundle`, is retained for 14 days. It is source for an installation,
 not a container image or evidence that a human has installed the demo.
 
-Select a full reviewed commit with passing applicable CI jobs. Save that run's
+For an installation, select the `push` run on `dev` for the owner's merged full
+commit, with all applicable CI jobs passing. Save that run's
 artifact before expiry, recording the repository, full source commit, run URL,
 artifact name and ZIP checksum with the private operator release record. A
 passing packaging job alone does not establish that the other checks passed.
-PR artifacts are review candidates; only the owner selects an installation.
+PR artifacts are review candidates: the default pull-request checkout tests a
+temporary merge commit, which can differ from the feature head and the later
+squash-merge commit. Do not label a PR bundle with either of those other SHAs.
+For PR review evidence, record its actual checked-out commit from checkout logs,
+as well as the run URL, feature head and artifact checksum. The ZIP does not
+embed a Git commit. Only the owner selects an installation.
 
 ## Build locally
 

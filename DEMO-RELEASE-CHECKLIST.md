@@ -15,6 +15,9 @@ All seven jobs passed for that integration revision in
 [CI run 38013918027](https://github.com/KaenBin/AgentX/actions/runs/38013918027).
 Select the full reviewed commit for an installation; a branch name or app version
 alone does not identify the installed source. Later changes need their own evidence.
+Use the `push` CI run for the owner's merged `dev` commit. Pull-request artifacts
+may contain a temporary merge revision; keep those as review evidence rather
+than attributing them to the later approved installation commit.
 
 | Evidence | What it establishes | Reference |
 | --- | --- | --- |
