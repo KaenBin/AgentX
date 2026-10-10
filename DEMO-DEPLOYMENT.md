@@ -7,6 +7,9 @@ monitoring and company onboarding belong to the later production milestone.
 For database readiness, request IDs, safe logs and update records, see
 [DEMO-OPERATIONS.md](DEMO-OPERATIONS.md). Application release references are in
 [RELEASES.md](RELEASES.md).
+The [source bundle job](SOURCE-BUNDLE.md) repeats the existing isolated container
+installation/recovery smoke test from the newly built ZIP's extracted contents.
+This catches missing deployment inputs that checkout-based tests could overlook.
 
 ## Container installation
 

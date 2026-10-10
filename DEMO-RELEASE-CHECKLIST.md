@@ -8,11 +8,11 @@ record that those human actions have happened.
 ## Reviewed source and evidence
 
 The current application version is `0.3.0`. The reviewed integration baseline is
-[`d31f6dd`](https://github.com/KaenBin/AgentX/commit/d31f6dd42953f9aa1ec0ea7056af27da026fe5b9),
+[`03bcd78`](https://github.com/KaenBin/AgentX/commit/03bcd782adcf584bafbcaec45c724ea00246f814),
 merged into `dev` by the owner through
-[PR #12](https://github.com/KaenBin/AgentX/pull/12) on 10 October 2026 at 09:37 Singapore.
-All seven jobs passed for that integration revision in
-[CI run 38013918027](https://github.com/KaenBin/AgentX/actions/runs/38013918027).
+[PR #13](https://github.com/KaenBin/AgentX/pull/13) on 10 October 2026 at 18:09 Singapore.
+All eight jobs passed for that integration revision in
+[CI run 38043945463](https://github.com/KaenBin/AgentX/actions/runs/38043945463).
 Select the full reviewed commit for an installation; a branch name or app version
 alone does not identify the installed source. Later changes need their own evidence.
 Use the `push` CI run for the owner's merged `dev` commit. Pull-request artifacts
@@ -26,22 +26,24 @@ than attributing them to the later approved installation commit.
 | Container smoke checks | Container startup, persistent storage, probes and recovery fixtures | [Demo deployment](DEMO-DEPLOYMENT.md) |
 | Upgrade rehearsal | Pinned `0.2.0` baseline to selected source, preserved evidence, new writes, restore and matching-backup rollback | [Upgrade rehearsal](UPGRADE-REHEARSAL.md), integration CI above |
 | Dependency advisories | Complete known-advisory check for all locked runtime/development/browser Python packages | [Advisory scope and reports](DEPENDENCY-ADVISORIES.md), integration CI above |
-| Source bundle | Explicit allowlist, manifest hashes, archive integrity and configured-key exclusion | [Bundle build and retention](SOURCE-BUNDLE.md); use a passing `source-bundle` job from the selected later revision |
+| Source bundle | Explicit allowlist, manifest hashes, archive integrity and configured-key exclusion | [Bundle build and retention](SOURCE-BUNDLE.md), integration CI above; extracted-source installation/recovery is a later follow-up |
 
 For local resource and concurrent-result evidence collected separately from these
 integration checks, use [DEMO-CAPACITY.md](DEMO-CAPACITY.md). It does not establish
 hosted sizing or human pilot outcomes.
 
-CodeRabbit confirmed and resolved PR #12's source-identity finding. Its docstring
-coverage warning remains advisory; its green status does not waive the limits
-of the dependency scan. Earlier release reviews are recorded in [RELEASES.md](RELEASES.md).
+CodeRabbit's full PR #13 review found no actionable issues; its focused follow-up
+confirmed all 12 packaging functions have docstrings. That confirmation supersedes
+the stale 41.67% summary from the earlier revision. Earlier release reviews are
+recorded in [RELEASES.md](RELEASES.md). Passing checks do not waive their scope limits.
 
 CI reports and the source bundle are retained for 14 days. Before expiry, save
 the selected run's `demo-upgrade-rehearsal`, `demo-capacity-benchmark`,
-`dependency-advisories` and, when its packaging job is present, `demo-source-bundle`
+`dependency-advisories` and `demo-source-bundle`
 artifacts with the private release record. Record the run, source commit and
-checksums. Packaging CI is a follow-up to the seven-job baseline above; do not
-attribute its artifact to that earlier run. Reports contain safe fixture outcomes; they do
+checksums. The baseline above verifies source packaging; the extracted-ZIP
+container installation/recovery check is a follow-up requiring its own passing run.
+Reports contain safe fixture outcomes; they do
 not replace a backup of the operator's actual data. See the upgrade guide for
 its fields and limits.
 
