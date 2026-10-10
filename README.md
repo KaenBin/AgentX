@@ -36,6 +36,8 @@ For the automated previous-version upgrade, recovery and rollback exercise, see
 [UPGRADE-REHEARSAL.md](UPGRADE-REHEARSAL.md).
 Use the [demo release handover](DEMO-RELEASE-CHECKLIST.md) to select a reviewed
 revision and record the actual installation, recovery and first human pilot.
+For the CI source ZIP, checksum verification and local rebuild command, see
+[SOURCE-BUNDLE.md](SOURCE-BUNDLE.md).
 For a dated low-cost comparison before choosing remote hosting, see
 [DEMO-HOSTING-OPTIONS.md](DEMO-HOSTING-OPTIONS.md).
 For repeatable offline resource measurements and concurrent saved-result checks,
