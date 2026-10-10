@@ -25,6 +25,7 @@ FILES = (
     'UPGRADE-REHEARSAL.md', 'upgrade_smoke.py',
     'ACCESSIBILITY-REVIEW.md',
     'DEMO-RELEASE-CHECKLIST.md',
+    'DEMO-OPERATOR-RECORD-TEMPLATE.md',
     'DEMO-HOSTING-OPTIONS.md',
     'DEMO-CAPACITY.md', 'benchmark_demo.py',
     'DEPENDENCY-MAINTENANCE.md', 'lock_dependencies.py',
