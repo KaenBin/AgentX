@@ -27,6 +27,11 @@ def source_identity(root):
     """Identify a checkout when available; lock hashes also support extracted bundles."""
     command = ["git", "-c", f"safe.directory={root.as_posix()}"]
     try:
+        tracked = subprocess.run(command + ["ls-files", "--error-unmatch", "--", "audit_dependencies.py",
+                                 *(output for _, output in LAYERS)], cwd=root,
+                                 capture_output=True, timeout=10)
+        if tracked.returncode:
+            return {"commit": None, "tracked_changes": None}
         result = subprocess.run(command + ["rev-parse", "HEAD"], cwd=root,
                                 capture_output=True, text=True, timeout=10)
         if result.returncode or not re.fullmatch(r"[a-f0-9]{40,64}", result.stdout.strip()):

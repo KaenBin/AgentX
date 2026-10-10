@@ -132,3 +132,29 @@ def test_cli_preserves_old_report_and_writes_failure_evidence(tmp_path, monkeypa
     original = path.read_bytes()
     assert audit.main(["--output", str(path)]) == 1
     assert path.read_bytes() == original and len(called) == 1
+
+
+@pytest.mark.parametrize("location", [".", "bundle"])
+def test_untracked_audit_files_do_not_borrow_an_ancestor_commit(tmp_path, location):
+    import audit_dependencies as audit
+
+    repo = tmp_path / "parent-checkout"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+    command = ["git", "-c", f"safe.directory={repo.as_posix()}", "-c", "user.name=Fixture",
+               "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false"]
+    (repo / "README.md").write_text("Unrelated checkout\n", encoding="utf-8")
+    subprocess.run(command + ["add", "README.md"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(command + ["commit", "-qm", "fixture"], cwd=repo, check=True, capture_output=True)
+    bundle = repo / location
+    bundle.mkdir(exist_ok=True)
+    fixture(bundle)
+    (bundle / "audit_dependencies.py").write_text("# Extracted fixture\n", encoding="utf-8")
+    assert audit.source_identity(bundle) == {"commit": None, "tracked_changes": None}
+    files = ["audit_dependencies.py", "requirements-runtime.txt", "requirements.txt", "requirements-browser.txt"]
+    subprocess.run(command + ["add", *files], cwd=bundle, check=True, capture_output=True)
+    subprocess.run(command + ["commit", "-qm", "source fixture"], cwd=bundle, check=True, capture_output=True)
+    commit = subprocess.check_output(command + ["rev-parse", "HEAD"], cwd=bundle, text=True).strip()
+    assert audit.source_identity(bundle) == {"commit": commit, "tracked_changes": False}
+    (bundle / files[1]).write_text("Edited lock\n", encoding="utf-8")
+    assert audit.source_identity(bundle) == {"commit": commit, "tracked_changes": True}

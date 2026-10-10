@@ -51,8 +51,9 @@ retain advisory IDs, aliases and suggested fixed versions. Free-form advisory
 descriptions and subprocess diagnostics are excluded from the report. No finding
 is suppressed and no automatic fix is applied.
 
-When Git is available, `source.commit` and `source.tracked_changes` identify the
-checkout. Extracted bundles can have no Git identity; exact lock hashes remain
+When Git is available and the audit script plus all three locks are tracked there,
+`source.commit` and `source.tracked_changes` identify the checkout. Extracted or
+untracked bundles do not borrow an ancestor repository's Git identity; exact lock hashes remain
 available. A dirty checkout is labeled and must not be described as the unchanged
 commit's package set. Save the report, its checksum and final CI run with the
 private release record when needed; `output/` is excluded from Git and bundles.
