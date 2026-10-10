@@ -37,9 +37,9 @@ supported deployment. Retain deterministic scoring and human content approval.
 | Persistence | SQLite, additive startup migrations, isolated rehearsals and container backup/restore smoke checks | Managed PostgreSQL, explicit migrations, production recovery targets and historical import rehearsal |
 | Frontend | Vanilla JavaScript; automated desktop, mobile, keyboard and trainer publication journeys | Broader accessibility review, component boundaries and human usability evidence |
 | Deployment | Non-root Docker/Compose demo, persistent volume, tested container recovery and allowlisted ZIP | Hosted staging, infrastructure as code, image promotion, production release pipeline and rollback |
-| Tests | 109 backend Python, 4 Chromium browser and 2 Node dashboard tests; container and upgrade smoke jobs in CI | Production DB tests, load, security, production recovery and human pilot |
+| Tests | Backend Python, 15 Chromium browser and 2 Node dashboard tests; container, upgrade and capacity jobs in CI | Production DB tests, sustained load, security, production recovery and human pilot |
 | Operations | Main-database readiness, generated request IDs, metadata-only HTTP logs, versioned demo release record and operator guide | Hosted telemetry retention, dashboards, alerts, production support and incident drills |
-| Dependencies | Hashed runtime, developer and browser lockfiles; test tools excluded from runtime image | Scheduled update PRs and upgrade compatibility evidence |
+| Dependencies | Hashed runtime, developer and browser lockfiles; layered update command and manual monthly review procedure; test tools excluded from runtime image | Scheduled update PRs and upgrade compatibility evidence |
 | Packaging | Explicit bundle allowlist | Reviewed manifests for new docs; private pilot records excluded from releases |
 
 Primary scope is `employee-training-assistant` in [KaenBin/AgentX](https://github.com/KaenBin/AgentX).
@@ -473,6 +473,10 @@ content/product before expanding. If recovery or authorization fails, delay prod
 7. When a company joins, confirm its content, identity, data handling and support needs;
    then re-estimate the production phases and backlog. The schedule above is provisional,
    not a commitment that starts before those decisions.
+
+Use [dependency maintenance](DEPENDENCY-MAINTENANCE.md) for monthly reviewed updates
+while human pilot arrangements are pending. Its lock consistency check is automated;
+update selection, advisory review and merge decisions remain with the owner.
 
 The container, browser CI, demo operability and automated upgrade rehearsal are
 merged, including the keyboard and mobile fixes. The demo release handover is

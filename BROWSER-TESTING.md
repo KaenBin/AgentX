@@ -51,11 +51,11 @@ browser contexts are closed after each case, including failures.
 ## Dependency updates
 
 `requirements-browser.in` adds Playwright while constraining application/test
-packages to `requirements.txt`. After changing the normal dependency locks,
-regenerate this additional lock with Python 3.13 and pip-tools 7.6.2:
+packages to `requirements.txt`. Use the layered updater with Python 3.13 and
+pip-tools 7.6.2, following [dependency maintenance](DEPENDENCY-MAINTENANCE.md):
 
 ```sh
-pip-compile --generate-hashes --strip-extras -o requirements-browser.txt requirements-browser.in
+python lock_dependencies.py --package playwright
 ```
 
 Install the regenerated lock, install its matching Chromium build, run backend
