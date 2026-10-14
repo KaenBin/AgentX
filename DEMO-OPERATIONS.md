@@ -82,6 +82,11 @@ privacy; debug with isolated fictional fixtures instead of turning on raw payloa
 
 ## Record an update
 
+Copy [the blank operator record](DEMO-OPERATOR-RECORD-TEMPLATE.md) outside the
+repository to keep the selected source, actual installation checks, backup/recovery
+observations and follow-up together. The distributed template is unfilled;
+automated CI results do not fill its operator checks.
+
 Before installing a reviewed revision, record the app version, Git commit, local
 image ID, configured mode, backup location, operator and time. Record image identity
 after building with `docker compose images`. A locally built tag is not an immutable

@@ -96,6 +96,44 @@ documentation was added; its full coverage recheck remained rate-limited.
 Use the [demo release handover](DEMO-RELEASE-CHECKLIST.md) for the outstanding
 actual installation, recovery and human pilot records.
 
+### Maintenance and source-bundle follow-up, 10 October 2026
+
+The current reviewed integration baseline is
+[`353f8bd`](https://github.com/KaenBin/AgentX/commit/353f8bdb55eca18a4d2f7ef1b0ff4a2567f4443f),
+owner-merged through [PR #14](https://github.com/KaenBin/AgentX/pull/14)
+at 19:07 Singapore. This follows the reviewed capacity, dependency maintenance,
+advisory and source-packaging work in PRs #10–#13. App version remains `0.3.0`;
+select and record the full source commit separately.
+
+All eight jobs passed in the baseline's
+[dev push CI run 38047276237](https://github.com/KaenBin/AgentX/actions/runs/38047276237):
+Windows/Linux backend and dashboard checks, Chromium journeys, container smoke,
+previous-version upgrade, offline capacity benchmark, dependency advisories and
+source-bundle checks. PR #14's CodeRabbit full review covered feature head
+`81ebf02`, found no actionable issues and completed before the owner's merge.
+
+The source-bundle job builds the allowlisted ZIP/checksum, extracts the ZIP into
+separate storage, then builds and runs the container from those bundled files.
+Readiness, sign-in, safe logs, unprivileged runtime, dependency separation,
+persistent writes, stopped-app backup and empty-storage restore are checked before
+artifact upload. Restore refusals are exercised for running/paused containers and
+nonempty targets. The fixture uses a disposable Compose project; it does not
+exercise an operator's installation or backup.
+
+Retain the selected run's source bundle and safe upgrade/capacity/advisory reports
+before their 14-day expiry. Follow [SOURCE-BUNDLE.md](SOURCE-BUNDLE.md) for
+provenance and checksums, [DEPENDENCY-MAINTENANCE.md](DEPENDENCY-MAINTENANCE.md)
+for reviewed lock updates, and [DEPENDENCY-ADVISORIES.md](DEPENDENCY-ADVISORIES.md)
+for advisory coverage limits. No schema or dependency change was introduced by
+PR #14. Ubuntu container evidence does not establish Windows Docker, bare-Python
+recovery, live-model quality, hosted capacity or production readiness.
+
+Use [the demo handover](DEMO-RELEASE-CHECKLIST.md) and
+[blank operator record](DEMO-OPERATOR-RECORD-TEMPLATE.md) to collect actual
+installation/update and recovery observations outside Git. The blank record was
+added after this baseline and needs its own reviewed revision before inclusion in
+an installation bundle. Operator and human pilot results remain uncollected.
+
 ## 0.2.0 — prior demo foundation
 
 The existing app declared version 0.2.0. The deployment foundation was merged to

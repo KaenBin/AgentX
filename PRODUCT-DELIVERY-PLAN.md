@@ -449,7 +449,9 @@ content/product before expanding. If recovery or authorization fails, delay prod
    automated upgrade rehearsal and its CI job are merged through PR #6. Use
    the [demo release handover](DEMO-RELEASE-CHECKLIST.md) to select a reviewed
    revision and collect the outstanding operator and human evidence. Keep completed
-   participant records and generated databases private.
+   participant records and generated databases private. Copy the
+   [blank operator record](DEMO-OPERATOR-RECORD-TEMPLATE.md) outside Git for actual
+   installation/update, backup, recovery and follow-up observations.
 2. The owner arranges a volunteer and trainer. Run the first human session using the
    facilitator sheet; record observations and manual assessment scores separately from
    automated fixture results. Replace any public assessment forms participants have seen.
@@ -482,7 +484,10 @@ evidence for locked runtime/test packages; its scope excludes source code, Pytho
 and container OS security. Findings and incomplete audits remain visible CI failures.
 The [source bundle check](SOURCE-BUNDLE.md) builds a ZIP/checksum, runs container
 installation/recovery from its extracted source, then retains it in CI;
-retain the selected run's artifact before its 14-day expiry. Its checks do not
+this is merged through [PR #14](https://github.com/KaenBin/AgentX/pull/14) with
+all eight jobs passing for integration commit `353f8bd`. The
+[release handover](DEMO-RELEASE-CHECKLIST.md) links that exact run.
+Retain the selected run's artifact before its 14-day expiry. Its checks do not
 replace the actual operator installation, recovery or human pilot records.
 
 The container, browser CI, demo operability and automated upgrade rehearsal are

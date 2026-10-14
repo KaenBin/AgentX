@@ -8,11 +8,11 @@ record that those human actions have happened.
 ## Reviewed source and evidence
 
 The current application version is `0.3.0`. The reviewed integration baseline is
-[`03bcd78`](https://github.com/KaenBin/AgentX/commit/03bcd782adcf584bafbcaec45c724ea00246f814),
+[`353f8bd`](https://github.com/KaenBin/AgentX/commit/353f8bdb55eca18a4d2f7ef1b0ff4a2567f4443f),
 merged into `dev` by the owner through
-[PR #13](https://github.com/KaenBin/AgentX/pull/13) on 10 October 2026 at 18:09 Singapore.
+[PR #14](https://github.com/KaenBin/AgentX/pull/14) on 10 October 2026 at 19:07 Singapore.
 All eight jobs passed for that integration revision in
-[CI run 38043945463](https://github.com/KaenBin/AgentX/actions/runs/38043945463).
+[CI run 38047276237](https://github.com/KaenBin/AgentX/actions/runs/38047276237).
 Select the full reviewed commit for an installation; a branch name or app version
 alone does not identify the installed source. Later changes need their own evidence.
 Use the `push` CI run for the owner's merged `dev` commit. Pull-request artifacts
@@ -26,28 +26,35 @@ than attributing them to the later approved installation commit.
 | Container smoke checks | Container startup, persistent storage, probes and recovery fixtures | [Demo deployment](DEMO-DEPLOYMENT.md) |
 | Upgrade rehearsal | Pinned `0.2.0` baseline to selected source, preserved evidence, new writes, restore and matching-backup rollback | [Upgrade rehearsal](UPGRADE-REHEARSAL.md), integration CI above |
 | Dependency advisories | Complete known-advisory check for all locked runtime/development/browser Python packages | [Advisory scope and reports](DEPENDENCY-ADVISORIES.md), integration CI above |
-| Source bundle | Explicit allowlist, manifest hashes, archive integrity and configured-key exclusion | [Bundle build and retention](SOURCE-BUNDLE.md), integration CI above; extracted-source installation/recovery is a later follow-up |
+| Source bundle | Explicit allowlist, manifest hashes, archive integrity, configured-key exclusion and container installation/recovery from the extracted ZIP | [Bundle build and retention](SOURCE-BUNDLE.md), integration CI above |
 
 For local resource and concurrent-result evidence collected separately from these
 integration checks, use [DEMO-CAPACITY.md](DEMO-CAPACITY.md). It does not establish
 hosted sizing or human pilot outcomes.
 
-CodeRabbit's full PR #13 review found no actionable issues; its focused follow-up
-confirmed all 12 packaging functions have docstrings. That confirmation supersedes
-the stale 41.67% summary from the earlier revision. Earlier release reviews are
+CodeRabbit's full PR #14 review covered the final feature head `81ebf02` and found
+no actionable issues. The owner then squash-merged it as the integration baseline
+above. Earlier release reviews are
 recorded in [RELEASES.md](RELEASES.md). Passing checks do not waive their scope limits.
 
 CI reports and the source bundle are retained for 14 days. Before expiry, save
 the selected run's `demo-upgrade-rehearsal`, `demo-capacity-benchmark`,
 `dependency-advisories` and `demo-source-bundle`
 artifacts with the private release record. Record the run, source commit and
-checksums. The baseline above verifies source packaging; the extracted-ZIP
-container installation/recovery check is a follow-up requiring its own passing run.
+checksums. The baseline above verifies both source packaging and the extracted-ZIP
+container installation/recovery fixture.
 Reports contain safe fixture outcomes; they do
 not replace a backup of the operator's actual data. See the upgrade guide for
 its fields and limits.
 
 ## Select and install
+
+Copy [the blank operator record](DEMO-OPERATOR-RECORD-TEMPLATE.md) to a private
+location outside Git before recording the checks below. Its results start untested;
+fill them with observations from the selected installation, including failures and
+checks not performed. Use a new record for each installation or update. This
+template was added after the baseline above; to receive it inside a CI ZIP, select
+a later owner-merged revision with its own passing `dev` push run.
 
 - [ ] Owner selects the reviewed full commit and records its CI run and limitations.
 - [ ] Operator retains that run's source bundle/reports before artifact expiry and
